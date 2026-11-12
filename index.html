@@ -360,9 +360,61 @@ footer a:hover{color:var(--accent)}
 
 :root[data-motion="off"] .tile.lift::after{display:none}
 @media(prefers-reduced-motion:reduce){.tile.lift::after{display:none}.btn.primary:hover::after,.links a:hover::after{transform:none}}
+
+/* ───── 디자인 개편 v4 (2026-11-12 재판 채택) ─────
+   v2의 "블러 금지·무한 반복 금지·radius 4/8" 일부를 해제한다. 해제 범위:
+   (A) 히어로 배경 빛 번짐의 느린 이동 (B) 반투명 내비게이션 (E) 테두리 스포트라이트 (F) 스크롤 진행 바·타일 순차 등장
+   (G) 큰 radius 16px·강조어 그라데이션 (I) 코드 카드에 겹친 떠 있는 배지
+   보류: 격자·노이즈 배경, 마키, 3D 틸트, 커스텀 커서, 굵기 800 (재상정 조건은 커밋 메시지 참고)
+   모든 장식 모션은 prefers-reduced-motion·data-motion="off"에서 정지한다. */
+:root{--r-lg:16px;--accent-2:#6fd8ff}
+:root[data-theme="light"]{--accent-2:#0a6eb4}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--accent-2:#0a6eb4}}
+
+/* B: 반투명 내비게이션 (지원하지 않는 브라우저는 불투명 유지) */
+@supports (backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px)){
+  header.nav{background:color-mix(in srgb,var(--bg) 80%,transparent);-webkit-backdrop-filter:saturate(1.4) blur(14px);backdrop-filter:saturate(1.4) blur(14px)}
+}
+
+/* A: 히어로 빛 번짐 — 두 덩어리가 아주 천천히 움직인다 */
+.hero::before{background:radial-gradient(60% 70% at 78% 0%,var(--glow),transparent 70%),radial-gradient(40% 50% at 0% 100%,var(--accent-soft),transparent 70%),radial-gradient(30% 40% at 50% 60%,color-mix(in srgb,var(--accent-2) 8%,transparent),transparent 70%)}
+.hero::after{content:"";position:absolute;z-index:-1;pointer-events:none;width:560px;height:560px;right:-160px;top:-200px;border-radius:50%;background:radial-gradient(circle,var(--glow),transparent 65%);animation:drift 24s ease-in-out infinite alternate}
+@keyframes drift{to{transform:translate3d(-80px,60px,0)}}
+
+/* G: 강조어 그라데이션 (양끝 색 모두 큰 글씨 3:1 이상) */
+h1 .w.hl{background:linear-gradient(90deg,var(--accent),var(--accent-2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:var(--accent)}
+
+/* I: 코드 카드에 겹친 배지 */
+.hero .grid>*{min-width:0}
+.stage{position:relative}
+.float-badge{position:absolute;z-index:2;display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:var(--r-md);background:var(--surface-2);border:1px solid var(--line-2);font:500 13px var(--sans);color:var(--text);animation:float 6s ease-in-out infinite alternate}
+.float-badge i{width:8px;height:8px;border-radius:50%;background:var(--live)}
+.fb1{left:-32px;bottom:14%}
+.fb2{right:-12px;top:-20px;animation-delay:-3s}
+.fb2 i{background:var(--accent)}
+@keyframes float{to{transform:translateY(-8px)}}
+@media(max-width:900px){.fb1{left:8px;bottom:-20px}.fb2{right:16px;top:-20px}}
+
+/* E: 커서를 따라가는 테두리 스포트라이트 (JS가 넣는 --mx/--my 재사용) */
+.tile.lift{border-color:transparent;background:linear-gradient(var(--surface),var(--surface)) padding-box,linear-gradient(var(--line),var(--line)) border-box}
+.tile.lift:hover{border-color:transparent;background:linear-gradient(var(--surface),var(--surface)) padding-box,radial-gradient(260px circle at var(--mx,50%) var(--my,0%),var(--accent),var(--line) 75%) border-box}
+:root[data-motion="off"] .tile.lift:hover{background:linear-gradient(var(--surface),var(--surface)) padding-box,linear-gradient(var(--line-2),var(--line-2)) border-box}
+
+/* F: 스크롤 진행 바 (지원 브라우저만) + 타일 순차 등장 */
+.progress{display:none}
+@supports (animation-timeline:scroll()){
+  .progress{display:block;position:fixed;left:0;right:0;top:0;height:3px;z-index:60;background:linear-gradient(90deg,var(--accent),var(--accent-2));transform:scaleX(0);transform-origin:left;pointer-events:none;animation:prog linear both;animation-timeline:scroll(root)}
+}
+@keyframes prog{to{transform:scaleX(1)}}
+@keyframes tile-in{from{opacity:0;transform:translateY(16px)}}
+.rv.in.bento>.tile{animation:tile-in .4s var(--ease) backwards}
+.rv.in.bento>.tile:nth-child(2){animation-delay:60ms}.rv.in.bento>.tile:nth-child(3){animation-delay:120ms}
+.rv.in.bento>.tile:nth-child(4){animation-delay:180ms}.rv.in.bento>.tile:nth-child(5){animation-delay:240ms}
+.rv.in.bento>.tile:nth-child(n+6){animation-delay:300ms}
 </style>
 </head>
 <body>
+<div class="progress" aria-hidden="true"></div>
 <a class="skip" href="#main" data-i18n="skip">본문으로 건너뛰기</a>
 
 
@@ -409,7 +461,8 @@ footer a:hover{color:var(--accent)}
           <a id="resumeFileBtn" href="resume.hwp" download="입사지원서-김성윤.hwp">입사 지원서 내려받기 (HWP)</a>
         </div>
       </div>
-      <div class="card-code" aria-hidden="true">
+      <div class="stage" aria-hidden="true">
+      <div class="card-code">
         <div class="bar"><i></i><i></i><i></i><span>Developer.sol</span></div>
 <pre><span class="c">// SPDX-License-Identifier: MIT</span>
 <span class="k">pragma solidity</span> ^0.8.24;
@@ -427,6 +480,9 @@ footer a:hover{color:var(--accent)}
     <span class="k">emit</span> Contact(msg.sender, note);
   }<span class="caret"></span>
 }</pre>
+      </div>
+      <span class="float-badge fb1"><i></i>Open to work</span>
+      <span class="float-badge fb2"><i></i>Frontend · Web3</span>
       </div>
     </div>
   </div>
