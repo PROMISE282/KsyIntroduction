@@ -488,65 +488,19 @@ const DATA = {
 };
 
 /* ============================================================
-   2) 실시간 메시지 설정 (Supabase)
-   값이 비어 있으면: 로컬(localhost/file)에서는 "데모 모드", 배포된 사이트에서는 "준비 중" 안내.
+   2) 실시간 메시지 설정 (Neon Realtime)
+   realtimeUrl 이 비어 있으면: 로컬(localhost/file)에서는 "데모 모드", 배포된 사이트에서는 "준비 중" 안내.
 
-   [설정 순서]
-   1. supabase.com 에서 프로젝트 생성
-   2. Authentication → Sign In / Providers
-        - "Allow anonymous sign-ins" 켜기 (방문자는 로그인 화면 없이 익명 세션 자동 발급)
-        - Email 켜기 → Users 에서 본인 계정 1개 생성 → 그 계정의 UID 복사 (오너 로그인용)
-        - 권장: Authentication → Attack Protection 에서 CAPTCHA 켜기 (익명 가입 남용 방지)
-   3. SQL Editor 에 아래를 붙여넣고 실행 (YOUR_OWNER_UID 를 위에서 복사한 UID로 교체)
-
-      create table public.messages (
-        id        uuid primary key default gen_random_uuid(),
-        vid       uuid not null,
-        from_role text not null check (from_role in ('v','o')),
-        name      text not null default '방문자' check (char_length(name) <= 20),
-        contact   text check (char_length(contact) <= 100),
-        text      text not null check (char_length(text) between 1 and 1000),
-        ts        timestamptz not null default now()
-      );
-      create index on public.messages (vid, ts);
-      alter table public.messages enable row level security;
-
-      create policy "visitor read own" on public.messages for select to authenticated
-        using (vid = auth.uid());
-      create policy "visitor send own" on public.messages for insert to authenticated
-        with check (vid = auth.uid() and from_role = 'v');
-      create policy "owner all" on public.messages for all to authenticated
-        using (auth.uid() = 'YOUR_OWNER_UID'::uuid)
-        with check (auth.uid() = 'YOUR_OWNER_UID'::uuid);
-
-      -- 스팸 방어: 방문자당 최대 200개, 방문자 메시지는 2초에 1개
-      create function public.limit_messages() returns trigger language plpgsql as $$
-      begin
-        if new.from_role = 'v' then
-          if (select count(*) from public.messages where vid = new.vid) >= 200 then
-            raise exception 'message limit reached';
-          end if;
-          if exists (select 1 from public.messages
-                     where vid = new.vid and from_role = 'v' and ts > now() - interval '2 seconds') then
-            raise exception 'too fast';
-          end if;
-        end if;
-        return new;
-      end $$;
-      create trigger messages_limit before insert on public.messages
-        for each row execute function public.limit_messages();
-
-      alter publication supabase_realtime add table public.messages;
-
-   4. Project Settings → API 의 Project URL 과 anon public key 를 아래에 입력
-      (anon key 는 공개되어도 되는 키입니다. 접근 제어는 위 RLS 정책이 담당합니다.)
+   [설정 순서]  자세한 내용은 README.md
+   1. Neon 프로젝트 생성 후 db/schema.sql 적용 (messages, owner_login_failures)
+   2. neon realtime enable --allowed-origin <사이트 주소> 로 Realtime 켜기
+   3. Vercel 환경변수(서버 전용): DATABASE_URL, NEON_REALTIME_SECRET, OWNER_PASSWORD, SESSION_SECRET
+   4. NEON_REALTIME_URL 값을 아래 realtimeUrl 에 입력 (공개돼도 되는 값입니다.
+      접근 제어는 /api 서버 코드가 담당합니다.)
    ============================================================ */
 const CHAT_CONFIG = {
-  supabaseUrl: "",
-  supabaseKey: ""
+  realtimeUrl: ""
 };
-const SUPABASE_SRC = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js";
-const SUPABASE_SRI = "sha384-0w2KAL2YHP6wKOkUDzkCDGgVvfmHnj02DHeQ6XcHOgTfFsGyonKOpShMH1x6nk9o";
 
 /* ============================================================
    3) 유틸 / 테마 / 렌더링
@@ -831,7 +785,7 @@ function interactions() {
 }
 
 /* ============================================================
-   4) 메시지 저장소 (데모 / Supabase / 오프라인) — 같은 인터페이스
+   4) 메시지 저장소 (데모 / Neon / 오프라인) — 같은 인터페이스
    ============================================================ */
 const sortByTs = o => Object.entries(o || {}).map(([id, m]) => ({ id, ...m })).sort((a, b) => a.ts - b.ts);
 
@@ -869,87 +823,111 @@ function offlineStore(reason) {
   return { mode: "offline", reason, needsLogin: false, onStatus() {} };
 }
 
-function supabaseStore() {
-  const sb = window.supabase.createClient(CHAT_CONFIG.supabaseUrl, CHAT_CONFIG.supabaseKey);
-  let statusCb = () => {};
+function neonStore(createRealtimeClient) {
+  let statusCb = () => {}, client = null;
+  const active = new Set();
   const seenKey = "pf_owner_seen";
   const seenMap = () => { try { return JSON.parse(localStorage.getItem(seenKey)) || {}; } catch { return {}; } };
-  const rowToMsg = r => ({ id: r.id, vid: r.vid, from: r.from_role, name: r.name, contact: r.contact, text: r.text, ts: Date.parse(r.ts) });
-  const subscribe = (name, filter, onInsert) => {
-    const ch = sb.channel(name)
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", ...(filter ? { filter } : {}) }, p => onInsert(rowToMsg(p.new)))
-      .subscribe(s => statusCb(s === "SUBSCRIBED" ? "live" : s === "CHANNEL_ERROR" || s === "TIMED_OUT" ? "error" : "connecting"));
-    return () => sb.removeChannel(ch);
+  const rowToMsg = r => ({ id: r.id, vid: r.vid, from: r.from_role, name: r.name, contact: r.contact, text: r.text, ts: new Date(r.ts).getTime() });
+  const byTs = rows => rows.map(rowToMsg).sort((a, b) => a.ts - b.ts);
+  const api = async (path, body) => {
+    const res = await fetch(path, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body || {}) });
+    return { ok: res.ok, status: res.status, data: await res.json().catch(() => null) };
   };
-  return {
-    mode: "supabase", needsLogin: true,
-    onStatus: cb => { statusCb = cb; },
-    // 방문자: 화면 없는 익명 세션. 브라우저에 저장돼 재방문 시 같은 대화가 이어짐
-    async visitorId() {
-      let { data: { session } } = await sb.auth.getSession();
-      if (!session) {
-        const { data, error } = await sb.auth.signInAnonymously();
-        if (error) throw error;
-        session = data.session;
-      }
-      return session.user.id;
-    },
-    async restore() {
-      const { data: { session } } = await sb.auth.getSession();
-      if (!session || session.user.is_anonymous) throw new Error("no owner session");
-    },
-    async login(email, pw) {
-      const { error } = await sb.auth.signInWithPassword({ email, password: pw });
-      if (error) throw new Error("로그인 실패");
-    },
-    watchThread(vid, cb) {
-      let list = [], dead = false;
-      const emit = () => cb(list.slice().sort((a, b) => a.ts - b.ts));
-      const off = subscribe("v-" + vid, `vid=eq.${vid}`, m => { if (!list.some(x => x.id === m.id)) { list.push(m); emit(); } });
-      sb.from("messages").select("*").eq("vid", vid).order("ts").then(({ data }) => {
-        if (dead) return;
-        const ids = new Set(list.map(m => m.id));
-        list = [...(data || []).map(rowToMsg).filter(m => !ids.has(m.id)), ...list]; emit();
+  const live = async body => { const r = await api("/api/live", body); if (!r.ok) throw new Error("live " + r.status); return r.data; };
+  const getClient = () => client || (client = createRealtimeClient({ url: CHAT_CONFIG.realtimeUrl }));
+
+  // 봉인된 쿼리를 구독한다. 만료 10초 전에 갱신하고, 오류가 나면 새 쿼리로 다시 구독한다. 반환값: 해제 함수
+  function openLive(fetchSealed, onRows) {
+    let sub = null, used = null, renewTimer = null, retryTimer = null, dead = false, failures = 0, renewFails = 0;
+    const report = s => { if (!dead) statusCb(s); };
+    const stop = () => { clearTimeout(renewTimer); if (sub) { active.delete(sub); try { sub.unsubscribe(); } catch {} sub = null; } };
+    const retry = () => {
+      stop();
+      if (client === used) { try { client.close(); } catch {} client = null; }
+      failures++;
+      report(failures >= 3 ? "error" : "connecting");
+      if (!dead) retryTimer = setTimeout(start, Math.min(3000 * failures, 30000));
+    };
+    const renewIn = delay => {
+      clearTimeout(renewTimer);
+      renewTimer = setTimeout(async () => {
+        if (dead || !sub) return;
+        try { const next = await fetchSealed(); await sub.renew(next); renewFails = 0; renewIn(Math.max(0, next.expiresAt - Date.now() - 10000)); }
+        catch { renewIn(Math.min(1000 * ++renewFails, 15000)); }
+      }, delay);
+    };
+    async function start() {
+      if (dead) return;
+      let sealed;
+      try { sealed = await fetchSealed(); } catch { return retry(); }
+      if (dead) return;
+      used = getClient();
+      sub = used.subscribe(sealed);
+      active.add(sub);
+      sub.onChange(snap => { if (snap.data) onRows(snap.data); });
+      sub.onStateChange(st => {
+        if (st.status === "error") retry();
+        else if (st.status === "live") { failures = 0; report("live"); }
+        else if (st.status === "connecting" || st.status === "stale") report("connecting");
       });
-      return () => { dead = true; off(); };
+      renewIn(Math.max(0, sealed.expiresAt - Date.now() - 10000));
+    }
+    start();
+    return () => { dead = true; clearTimeout(retryTimer); stop(); };
+  }
+
+  return {
+    mode: "neon", needsLogin: true,
+    onStatus: cb => { statusCb = cb; },
+    // 방문자: 서버가 서명한 쿠키로 식별한다. 재방문해도 같은 대화가 이어짐
+    async visitorId() { return (await live({})).vid; },
+    async restore() {
+      const res = await fetch("/api/owner/session");
+      const d = await res.json().catch(() => null);
+      if (!res.ok || !d || !d.owner) throw new Error("no owner session");
+    },
+    async login(pw) {
+      const r = await api("/api/owner/login", { password: pw });
+      if (!r.ok) throw new Error(r.status === 429 ? "시도 횟수가 너무 많습니다. 잠시 후 다시 시도해 주세요." : "로그인 실패");
+    },
+    watchThread(_vid, cb) {
+      return openLive(() => live({}).then(d => d.sealed), rows => cb(byTs(rows)));
     },
     watchAll(cb) {
-      let rows = [], dead = false;
-      const emit = () => {
+      return openLive(() => live({ scope: "owner" }).then(d => d.sealed), rows => {
         const seen = seenMap(), tree = {};
-        rows.slice().sort((a, b) => a.ts - b.ts).forEach(m => {
+        byTs(rows).forEach(m => {
           const c = tree[m.vid] = tree[m.vid] || { meta: {}, messages: {} };
           c.messages[m.id] = m;
           c.meta = { name: m.from === "v" ? m.name : c.meta.name, contact: m.from === "v" && m.contact ? m.contact : c.meta.contact,
                      lastFrom: m.from, lastTs: m.ts, lastText: m.text, ownerSeen: seen[m.vid] || 0 };
         });
         cb(tree);
-      };
-      const off = subscribe("owner-all", null, m => { if (!rows.some(x => x.id === m.id)) { rows.push(m); emit(); } });
-      sb.from("messages").select("*").order("ts", { ascending: false }).limit(1000).then(({ data }) => {
-        if (dead) return;
-        const ids = new Set(rows.map(r => r.id));
-        rows = [...(data || []).filter(r => !ids.has(r.id)).map(rowToMsg), ...rows]; emit();
       });
-      return () => { dead = true; off(); };
     },
     async send(vid, from, name, text, contact) {
-      const { error } = await sb.from("messages").insert({ vid, from_role: from, name, text, contact: contact || null });
-      if (error) throw new Error(/too fast/.test(error.message) ? "너무 빠르게 보내고 있어요. 잠시 후 다시 시도해 주세요." : /limit/.test(error.message) ? "이 대화의 메시지 한도에 도달했습니다." : "전송에 실패했습니다.");
+      const r = await api("/api/send", { text, name, contact: contact || null, ...(from === "o" ? { as: "owner", vid } : {}) });
+      if (!r.ok) throw new Error(
+        r.status === 429 ? (r.data && r.data.error === "limit" ? "이 대화의 메시지 한도에 도달했습니다." : "너무 빠르게 보내고 있어요. 잠시 후 다시 시도해 주세요.")
+        : r.status === 401 ? "오너 로그인이 만료되었습니다. 새로고침 해주세요."
+        : r.status === 400 ? "내용을 확인해 주세요."
+        : "전송에 실패했습니다.");
+      // 보낸 메시지가 구독에 도착할 때까지 기다린다(입력창은 그 뒤에 비워짐). 못 기다려도 전송은 이미 끝난 상태
+      const sub = [...active][0];
+      if (sub && r.data && r.data.txid) { try { await sub.awaitTxId(r.data.txid, 5000); } catch {} }
     },
     async markSeen(vid) { const m = seenMap(); m[vid] = Date.now(); safeSet(seenKey, JSON.stringify(m)); }
   };
 }
 
-const loadScript = (src, integrity) => new Promise((ok, no) => {
-  const s = document.createElement("script");
-  s.src = src; s.integrity = integrity; s.crossOrigin = "anonymous"; s.onload = ok; s.onerror = no;
-  document.head.append(s);
-});
 async function initStore() {
-  if (!(CHAT_CONFIG.supabaseUrl && CHAT_CONFIG.supabaseKey)) return isLocal ? demoStore() : offlineStore("not-configured");
-  try { await loadScript(SUPABASE_SRC, SUPABASE_SRI); return supabaseStore(); }
-  catch { return offlineStore("load-failed"); }
+  if (!CHAT_CONFIG.realtimeUrl) return isLocal ? demoStore() : offlineStore("not-configured");
+  try {
+    const [mod, res] = await Promise.all([import("./vendor/neon-realtime.js"), fetch("/api/owner/session")]);
+    if (!res.ok) throw new Error("api " + res.status);
+    return neonStore(mod.createRealtimeClient);
+  } catch { return offlineStore("load-failed"); }
 }
 let store = null;
 
@@ -1086,15 +1064,14 @@ function mountAdmin() {
 
   if (!store.needsLogin) return start();
   const showLogin = msg => {
-    const email = h("input", { type: "email", name: "email", placeholder: "name@company.com", autocomplete: "username", required: true });
     const pw = h("input", { type: "password", name: "password", autocomplete: "current-password", required: true });
     const err = h("div", { class: "err", role: "alert", style: "padding:0" }, msg || "");
     chatEl.replaceChildren(
       h("div", { class: "chat-head" }, h("div", { class: "who2" }, h("span", { class: "dot" }), "오너 로그인")),
       h("form", { class: "login", onsubmit: async e => {
         e.preventDefault(); err.textContent = "";
-        try { await store.login(email.value, pw.value); start(); } catch (x) { err.textContent = x.message; }
-      } }, h("p", { class: "lead", style: "font-size:14px" }, "방문자는 로그인이 필요 없습니다. 이 화면은 사이트 주인 전용입니다."), h("label", { class: "fld" }, h("span", {}, "이메일"), email), h("label", { class: "fld" }, h("span", {}, "비밀번호"), pw), err, h("button", { class: "btn primary", type: "submit" }, "들어가기")));
+        try { await store.login(pw.value); start(); } catch (x) { err.textContent = x.message; }
+      } }, h("p", { class: "lead", style: "font-size:14px" }, "방문자는 로그인이 필요 없습니다. 이 화면은 사이트 주인 전용입니다."), h("label", { class: "fld" }, h("span", {}, "비밀번호"), pw), err, h("button", { class: "btn primary", type: "submit" }, "들어가기")));
   };
   store.restore().then(start).catch(() => showLogin());
 }
