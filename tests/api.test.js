@@ -95,9 +95,25 @@ test("send with foreign Origin is 403", async () => {
 
 test("send returns 429 too_fast", async () => {
   const { h } = setup({ insertRows: [], count: 1 });
-  const res = await h.send(post("/api/send", { text: "hi" }));
+  const cookie = cookieOf(await h.live(post("/api/live", {})));
+  const res = await h.send(post("/api/send", { text: "hi" }, { cookie }));
   assert.equal(res.status, 429);
   assert.deepEqual(await res.json(), { error: "too_fast" });
+});
+
+test("send without a vid cookie is 403 cookie_required and inserts nothing", async () => {
+  const { h, s } = setup();
+  const res = await h.send(post("/api/send", { text: "hi" }));
+  assert.equal(res.status, 403);
+  assert.deepEqual(await res.json(), { error: "cookie_required" });
+  assert.equal(s.inserts.length, 0);
+});
+
+test("send with a forged vid cookie is 403 cookie_required", async () => {
+  const { h, s } = setup();
+  const res = await h.send(post("/api/send", { text: "hi" }, { cookie: "pf_vid=forged.token" }));
+  assert.equal(res.status, 403);
+  assert.equal(s.inserts.length, 0);
 });
 
 test("send returns 400 for invalid text", async () => {

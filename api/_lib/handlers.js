@@ -39,6 +39,8 @@ export function makeHandlers(deps) {
     const parsed = parseSend(body, role);
     if (!parsed.ok) return json(parsed.status, { error: parsed.code });
     const visitor = asOwner ? { vid: parsed.value.vid, setCookie: null } : getVisitor(request, secret());
+    // 방문자는 /api/live 로 받은 서명 쿠키가 있어야 보낼 수 있다. 쿠키 없이 요청마다 새 vid 를 만들어 제한을 피하는 것을 막는다
+    if (!asOwner && visitor.setCookie) return json(403, { error: "cookie_required" });
     const { name, contact, text } = parsed.value;
     const result = await insertMessage(deps.sql(), { vid: visitor.vid, from: role, name, contact, text });
     if (!result.ok) return json(429, { error: result.code });

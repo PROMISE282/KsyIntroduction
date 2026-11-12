@@ -823,10 +823,8 @@ function offlineStore(reason) {
   return { mode: "offline", reason, needsLogin: false, onStatus() {} };
 }
 
-function neonStore(createRealtimeClient) {
-  const LIVE_TIMEOUT_MS = 15000;
+function neonStore(createRealtimeClient, createLiveOpener) {
   let statusCb = () => {}, client = null, lastStatus = "connecting";
-  const active = new Set();
   const seenKey = "pf_owner_seen";
   const seenMap = () => { try { return JSON.parse(localStorage.getItem(seenKey)) || {}; } catch { return {}; } };
   const rowToMsg = r => ({ id: r.id, vid: r.vid, from: r.from_role, name: r.name, contact: r.contact, text: r.text, ts: new Date(r.ts).getTime() });
@@ -837,48 +835,12 @@ function neonStore(createRealtimeClient) {
   };
   const live = async body => { const r = await api("/api/live", body); if (!r.ok) throw new Error("live " + r.status); return r.data; };
   const getClient = () => client || (client = createRealtimeClient({ url: CHAT_CONFIG.realtimeUrl }));
-
-  // 봉인된 쿼리를 구독한다. 만료 10초 전에 갱신하고, 오류가 나면 새 쿼리로 다시 구독한다. 반환값: 해제 함수
-  function openLive(fetchSealed, onRows) {
-    let sub = null, used = null, renewTimer = null, retryTimer = null, watchdog = null, dead = false, failures = 0, renewFails = 0;
-    const report = s => { if (!dead) { lastStatus = s; statusCb(s); } };
-    const stop = () => { clearTimeout(renewTimer); clearTimeout(watchdog); if (sub) { active.delete(sub); try { sub.unsubscribe(); } catch {} sub = null; } };
-    const retry = () => {
-      stop();
-      if (client === used) { try { client.close(); } catch {} client = null; }
-      failures++;
-      report(failures >= 3 ? "error" : "connecting");
-      if (!dead) retryTimer = setTimeout(start, Math.min(3000 * failures, 30000));
-    };
-    const renewIn = delay => {
-      clearTimeout(renewTimer);
-      renewTimer = setTimeout(async () => {
-        if (dead || !sub) return;
-        try { const next = await fetchSealed(); await sub.renew(next); renewFails = 0; renewIn(Math.max(0, next.expiresAt - Date.now() - 10000)); }
-        catch { renewIn(Math.min(1000 * ++renewFails, 15000)); }
-      }, delay);
-    };
-    async function start() {
-      if (dead) return;
-      let sealed;
-      try { sealed = await fetchSealed(); } catch { return retry(); }
-      if (dead) return;
-      used = getClient();
-      sub = used.subscribe(sealed);
-      active.add(sub);
-      report("connecting");
-      watchdog = setTimeout(retry, LIVE_TIMEOUT_MS);   // 상태 이벤트 없이 연결 중에 멈춰 있는 경우도 재시도로 이어지게 한다
-      sub.onChange(snap => { if (snap.data) onRows(snap.data); });
-      sub.onStateChange(st => {
-        if (st.status === "error") retry();
-        else if (st.status === "live") { clearTimeout(watchdog); failures = 0; report("live"); }
-        else if (st.status === "connecting" || st.status === "stale") report("connecting");
-      });
-      renewIn(Math.max(0, sealed.expiresAt - Date.now() - 10000));
-    }
-    start();
-    return () => { dead = true; clearTimeout(retryTimer); stop(); };
-  }
+  // 구독 수명 관리(갱신·재시도·감시)는 web/open-live.js
+  const { openLive, active } = createLiveOpener({
+    getClient,
+    dropClient: used => { if (client === used) { try { client.close(); } catch {} client = null; } },
+    report: s => { lastStatus = s; statusCb(s); }
+  });
 
   return {
     mode: "neon", needsLogin: true,
@@ -914,6 +876,7 @@ function neonStore(createRealtimeClient) {
       const r = await api("/api/send", { text, name, contact: contact || null, ...(from === "o" ? { as: "owner", vid } : {}) });
       if (!r.ok) throw new Error(
         r.status === 429 ? (r.data && r.data.error === "limit" ? "이 대화의 메시지 한도에 도달했습니다." : "너무 빠르게 보내고 있어요. 잠시 후 다시 시도해 주세요.")
+        : r.status === 403 ? "브라우저에서 쿠키를 허용해야 메시지를 보낼 수 있습니다."
         : r.status === 401 ? "오너 로그인이 만료되었습니다. 새로고침 해주세요."
         : r.status === 400 ? "내용을 확인해 주세요."
         : "전송에 실패했습니다.");
@@ -928,9 +891,9 @@ function neonStore(createRealtimeClient) {
 async function initStore() {
   if (!CHAT_CONFIG.realtimeUrl) return isLocal ? demoStore() : offlineStore("not-configured");
   try {
-    const [mod, res] = await Promise.all([import("./vendor/neon-realtime.js"), fetch("/api/owner/session")]);
+    const [mod, liveMod, res] = await Promise.all([import("./vendor/neon-realtime.js"), import("./web/open-live.js"), fetch("/api/owner/session")]);
     if (!res.ok) throw new Error("api " + res.status);
-    return neonStore(mod.createRealtimeClient);
+    return neonStore(mod.createRealtimeClient, liveMod.createLiveOpener);
   } catch { return offlineStore("load-failed"); }
 }
 let store = null;
