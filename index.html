@@ -389,11 +389,11 @@ h1 .w.hl{background:linear-gradient(90deg,var(--accent),var(--accent-2));-webkit
 .stage{position:relative}
 .float-badge{position:absolute;z-index:2;display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:var(--r-md);background:var(--surface-2);border:1px solid var(--line-2);font:500 13px var(--sans);color:var(--text);animation:float 6s ease-in-out infinite alternate}
 .float-badge i{width:8px;height:8px;border-radius:50%;background:var(--live)}
-.fb1{left:-32px;bottom:14%}
+.fb1{left:24px;bottom:-24px}
 .fb2{right:-12px;top:-20px;animation-delay:-3s}
 .fb2 i{background:var(--accent)}
 @keyframes float{to{transform:translateY(-8px)}}
-@media(max-width:900px){.fb1{left:8px;bottom:-20px}.fb2{right:16px;top:-20px}}
+@media(max-width:900px){.fb2{right:16px;top:-20px}}
 
 /* E: 커서를 따라가는 테두리 스포트라이트 (JS가 넣는 --mx/--my 재사용) */
 .tile.lift{border-color:transparent;background:linear-gradient(var(--surface),var(--surface)) padding-box,linear-gradient(var(--line),var(--line)) border-box}
