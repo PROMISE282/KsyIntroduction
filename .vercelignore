@@ -1,0 +1,10 @@
+.env
+.env.*
+.neon
+.superpowers
+node_modules
+docs
+db
+tests
+scripts
+README.md
