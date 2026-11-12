@@ -6,7 +6,7 @@
     "node": ">=24"
   },
   "scripts": {
-    "test": "node --env-file=.env.local --test tests/",
+    "test": "node --env-file=.env.local --test",
     "build:vendor": "esbuild scripts/vendor-entry.js --bundle --format=esm --minify --outfile=vendor/neon-realtime.js"
   },
   "devDependencies": {
