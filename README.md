@@ -22,6 +22,17 @@
 | `OWNER_PASSWORD` | 서버 전용 | 오너 로그인 비밀번호(16자 이상 무작위 권장) |
 | `SESSION_SECRET` | 서버 전용 | 쿠키 서명 키(`openssl rand -hex 32`) |
 
+### 답장 메일(선택)
+
+오너가 보낸 답장을 방문자가 남긴 이메일로도 보냅니다. 아래 값이 모두 있어야 켜지고, 없으면 채팅만 동작합니다. 메일 발송이 실패해도 메시지는 저장됩니다.
+
+| 이름 | 설명 |
+|---|---|
+| `SMTP_HOST` / `SMTP_PORT` | SMTP 서버. Gmail은 `smtp.gmail.com` / `465` |
+| `SMTP_USER` / `SMTP_PASS` | 계정과 비밀번호. Gmail은 2단계 인증을 켠 뒤 만든 **앱 비밀번호** |
+| `MAIL_FROM` | (선택) 보내는 주소. 기본값은 `SMTP_USER` |
+| `MAIL_REPLY_TO` | (선택) 방문자가 메일에 답장할 때 받을 주소. 기본값은 `SMTP_USER` |
+
 `.env.example`에 이름만 있습니다. 값은 `.env.local`(git 무시)이나 Vercel 환경변수에 넣습니다.
 
 ## 설정 순서

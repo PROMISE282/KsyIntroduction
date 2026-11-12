@@ -9,10 +9,11 @@ const OTHER_VID = "2f1b8f0e-6c3a-4a53-9a1e-0b6f6c1d9a10";
 const env = { SESSION_SECRET: SECRET, OWNER_PASSWORD: PASSWORD };
 
 function setup(state = {}) {
-  const s = { insertRows: [{ txid: "42" }], count: 0, failures: 0, inserts: [], failureWrites: 0, ...state };
+  const s = { insertRows: [{ txid: "42" }], count: 0, failures: 0, inserts: [], failureWrites: 0, contact: null, mails: [], mailError: null, mailOn: false, ...state };
   const sql = {
     async query(text, params) {
       if (text.includes("INSERT INTO messages")) { s.inserts.push(params); return s.insertRows; }
+      if (text.includes("SELECT contact FROM messages")) return s.contact ? [{ contact: s.contact }] : [];
       if (text.includes("FROM messages")) return [{ n: s.count }];
       if (text.includes("SELECT count(*)::int AS n FROM owner_login_failures")) return [{ n: s.failures }];
       if (text.includes("INSERT INTO owner_login_failures")) { s.failureWrites++; return []; }
@@ -20,7 +21,8 @@ function setup(state = {}) {
     }
   };
   const realtime = { async seal({ query }) { return { token: "sealed", query }; } };
-  return { s, h: makeHandlers({ env, sql: () => sql, realtime: () => realtime }) };
+  const mail = s.mailOn ? async m => { if (s.mailError) throw new Error(s.mailError); s.mails.push(m); } : null;
+  return { s, h: makeHandlers({ env, sql: () => sql, realtime: () => realtime, mail }) };
 }
 
 const post = (path, body, { cookie, origin = "https://site.test", ip } = {}) =>
@@ -79,6 +81,41 @@ test("send as owner with vid inserts an owner reply", async () => {
   const res = await h.send(post("/api/send", { text: "hi", as: "owner", vid: OTHER_VID }, OWNER));
   assert.equal(res.status, 200);
   assert.deepEqual([s.inserts[0][0], s.inserts[0][1]], [OTHER_VID, "o"]);
+});
+
+const ownerReply = h => h.send(post("/api/send", { text: "reply text", as: "owner", vid: OTHER_VID }, OWNER));
+
+test("owner reply is emailed to the visitor's contact", async () => {
+  const { h, s } = setup({ mailOn: true, contact: "visitor@example.com" });
+  const res = await ownerReply(h);
+  assert.equal(res.status, 200);
+  assert.equal((await res.json()).mail, "sent");
+  assert.deepEqual(s.mails, [{ to: "visitor@example.com", text: "reply text" }]);
+});
+
+test("owner reply without a visitor email sends no mail", async () => {
+  const { h, s } = setup({ mailOn: true, contact: null });
+  assert.equal((await (await ownerReply(h)).json()).mail, "no_contact");
+  assert.equal(s.mails.length, 0);
+});
+
+test("owner reply ignores a non-email contact", async () => {
+  const { h, s } = setup({ mailOn: true, contact: "010-1234-5678" });
+  assert.equal((await (await ownerReply(h)).json()).mail, "no_contact");
+  assert.equal(s.mails.length, 0);
+});
+
+test("mail failure still saves the reply and reports failed", async () => {
+  const { h, s } = setup({ mailOn: true, contact: "visitor@example.com", mailError: "smtp down" });
+  const res = await ownerReply(h);
+  assert.equal(res.status, 200);
+  assert.equal((await res.json()).mail, "failed");
+  assert.equal(s.inserts.length, 1);
+});
+
+test("owner reply reports disabled when mail is not configured", async () => {
+  const { h } = setup({ contact: "visitor@example.com" });
+  assert.equal((await (await ownerReply(h)).json()).mail, "disabled");
 });
 
 test("send as owner without owner cookie is 401", async () => {

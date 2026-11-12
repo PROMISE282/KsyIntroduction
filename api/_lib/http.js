@@ -1,5 +1,6 @@
 import { createRealtime } from "@neon/realtime/server";
 import { getSql } from "./db.js";
+import { makeMailer } from "./mail.js";
 
 export function json(status, body, setCookie) {
   const headers = new Headers({ "content-type": "application/json", "cache-control": "no-store" });
@@ -17,4 +18,4 @@ export function sameOrigin(request) {
 export const makeRealtime = (env = process.env) =>
   createRealtime({ secret: env.NEON_REALTIME_SECRET, db: new URL(env.DATABASE_URL).pathname.slice(1) });
 
-export const defaultDeps = () => ({ env: process.env, sql: getSql, realtime: () => makeRealtime() });
+export const defaultDeps = () => ({ env: process.env, sql: getSql, realtime: () => makeRealtime(), mail: makeMailer() });

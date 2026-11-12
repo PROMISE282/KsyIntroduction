@@ -1042,6 +1042,7 @@ function neonStore(createRealtimeClient, createLiveOpener) {
       // 보낸 메시지가 구독에 도착할 때까지 기다린다(입력창은 그 뒤에 비워짐). 못 기다려도 전송은 이미 끝난 상태
       const sub = [...active][0];
       if (sub && r.data && r.data.txid) { try { await sub.awaitTxId(r.data.txid, 5000); } catch {} }
+      return r.data && r.data.mail;   // 오너 답장의 메일 발송 결과 (sent / no_contact / failed / disabled)
     },
     async markSeen(vid) { const m = seenMap(); m[vid] = Date.now(); safeSet(seenKey, JSON.stringify(m)); }
   };
@@ -1093,11 +1094,18 @@ function statusUI() {
   return { dot, txt };
 }
 
+const MAIL_NOTE = {   // 오너 화면 전용 안내 (한국어)
+  sent: "✓ 방문자 이메일로도 보냈습니다.",
+  no_contact: "방문자가 이메일을 남기지 않아 메일은 보내지 않았습니다.",
+  failed: "메시지는 전달됐지만 이메일 발송에 실패했습니다.",
+  disabled: "메일 설정이 없어 채팅으로만 전달됐습니다."
+};
 function bindCompose(onSend) {
   const ta = h("textarea", { id: "fMsg", name: "message", rows: 1, maxlength: MAX });
   const taLabel = h("label", { class: "msg-l", for: "fMsg" }, t("lblMsg"));
   const btn = h("button", { class: "btn primary", type: "submit" }, t("send"));
   const err = h("div", { class: "err", role: "alert", hidden: true });
+  const note = h("div", { class: "hint", role: "status", hidden: true, style: "margin:0;padding:0 12px 8px" });
   // 봇 방지 허니팟: 사람에게는 보이지 않고, 채워지면 조용히 무시
   const hp = h("input", { name: "website", tabindex: "-1", autocomplete: "off", "aria-hidden": "true", style: "position:absolute;left:-9999px;width:1px;height:1px;opacity:0" });
   let last = 0;
@@ -1106,13 +1114,17 @@ function bindCompose(onSend) {
     const text = ta.value.trim();
     if (!text || hp.value || Date.now() - last < 800) return;
     last = Date.now(); btn.disabled = true; err.hidden = true;
-    try { await onSend(text); ta.value = ""; ta.style.height = ""; }
+    try {
+      const res = await onSend(text); ta.value = ""; ta.style.height = "";
+      const msg = MAIL_NOTE[res];
+      note.textContent = msg || ""; note.hidden = !msg;
+    }
     catch (x) { last = 0; err.textContent = x.message || t("sendFail"); err.hidden = false; }
     finally { btn.disabled = false; ta.focus(); }
   } }, taLabel, ta, hp, btn);
   ta.addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); form.requestSubmit(); } });
   ta.addEventListener("input", () => { ta.style.height = "auto"; ta.style.height = Math.min(ta.scrollHeight, 120) + "px"; });
-  return { form, err, ta };
+  return { form, err, ta, note };
 }
 
 function drawLog(log, msgs, mineFrom, emptyText) {
@@ -1164,7 +1176,7 @@ function mountAdmin() {
     const log = h("div", { class: "log", role: "log", "aria-live": "polite" });
     const info = h("div", { class: "contactline", hidden: true });
     const head = h("div", { class: "chat-head" }, h("div", { class: "who2" }, dot, "오너 모드"), h("span", { class: "state" }, txt, " · ", h("a", { href: "#contact" }, "방문자 화면 보기")));
-    const c = bindCompose(async text => { if (!sel) throw new Error("왼쪽에서 대화를 선택하세요."); await store.send(sel, "o", "KSY", text); });
+    const c = bindCompose(async text => { if (!sel) throw new Error("왼쪽에서 대화를 선택하세요."); return store.send(sel, "o", "KSY", text); });
     const seenNow = {};   // 이 화면에서 읽은 시각 (다른 대화로 옮겨도 읽음 상태가 되살아나지 않게)
     const unreadCount = id => !tree[id] ? 0 : sortByTs(tree[id].messages)
       .filter(m => m.from === "v" && m.ts > Math.max(tree[id].meta.ownerSeen || 0, seenNow[id] || 0)).length;
@@ -1184,7 +1196,7 @@ function mountAdmin() {
       if (sel && unreadCount(sel) > 0) { seenNow[sel] = Date.now(); store.markSeen(sel).catch(() => {}); }
     };
     chatEl.replaceChildren(head,
-      h("div", { class: "admin" }, list, h("div", { class: "pane" }, info, log, c.err, c.form)));
+      h("div", { class: "admin" }, list, h("div", { class: "pane" }, info, log, c.err, c.note, c.form)));
     teardown.push(store.watchAll(t => { tree = t; draw(); }));
   };
 

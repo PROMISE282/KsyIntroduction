@@ -4,12 +4,13 @@ import { parseSend } from "./validate.js";
 import { insertMessage, checkLoginThrottle, recordLoginFailure } from "./db.js";
 import { visitorThreadQuery, ownerAllQuery } from "./queries.js";
 import { json, sameOrigin } from "./http.js";
+import { isEmail } from "./mail.js";
 
 const digest = s => createHash("sha256").update(String(s)).digest();
 const clientIp = request => (request.headers.get("x-forwarded-for") || "unknown").split(",")[0].trim();
 const readJson = async request => { try { return await request.json(); } catch { return null; } };
 
-// deps: { env, sql: () => sql, realtime: () => realtime } so tests can swap the DB and Realtime.
+// deps: { env, sql: () => sql, realtime: () => realtime, mail: async ({to, text}) | null } so tests can swap the DB, Realtime and mail.
 export function makeHandlers(deps) {
   const secret = () => {
     if (!deps.env.SESSION_SECRET) throw new Error("SESSION_SECRET is not set");
@@ -31,6 +32,18 @@ export function makeHandlers(deps) {
     return json(200, { sealed: await deps.realtime().seal({ query: visitorThreadQuery(vid) }), vid }, setCookie);
   });
 
+  const mailReply = async (vid, text) => {
+    if (!deps.mail) return "disabled";
+    try {
+      const rows = await deps.sql().query(
+        "SELECT contact FROM messages WHERE vid = $1::uuid AND from_role = 'v' AND contact IS NOT NULL ORDER BY ts DESC LIMIT 1", [vid]);
+      const to = rows[0]?.contact;
+      if (!isEmail(to)) return "no_contact";
+      await deps.mail({ to, text });
+      return "sent";
+    } catch (e) { console.error("mail error:", e.message); return "failed"; }
+  };
+
   const send = post(async request => {
     const body = await readJson(request);
     const asOwner = body?.as === "owner";
@@ -44,7 +57,9 @@ export function makeHandlers(deps) {
     const { name, contact, text } = parsed.value;
     const result = await insertMessage(deps.sql(), { vid: visitor.vid, from: role, name, contact, text });
     if (!result.ok) return json(429, { error: result.code });
-    return json(200, { kind: "committed", txid: result.txid }, visitor.setCookie);
+    // 오너 답장은 방문자가 남긴 이메일로도 보낸다. 메일이 실패해도 메시지는 이미 저장됐으므로 전송 자체는 성공으로 둔다
+    const mail = asOwner ? await mailReply(visitor.vid, text) : undefined;
+    return json(200, { kind: "committed", txid: result.txid, ...(mail ? { mail } : {}) }, visitor.setCookie);
   });
 
   const ownerLogin = post(async request => {
