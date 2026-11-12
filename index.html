@@ -499,7 +499,7 @@ const DATA = {
       접근 제어는 /api 서버 코드가 담당합니다.)
    ============================================================ */
 const CHAT_CONFIG = {
-  realtimeUrl: ""
+  realtimeUrl: "wss://ep-dry-cell-ao8kwkgi.rt.c-2.ap-southeast-1.aws.neon.tech/"
 };
 
 /* ============================================================
@@ -824,7 +824,8 @@ function offlineStore(reason) {
 }
 
 function neonStore(createRealtimeClient) {
-  let statusCb = () => {}, client = null;
+  const LIVE_TIMEOUT_MS = 15000;
+  let statusCb = () => {}, client = null, lastStatus = "connecting";
   const active = new Set();
   const seenKey = "pf_owner_seen";
   const seenMap = () => { try { return JSON.parse(localStorage.getItem(seenKey)) || {}; } catch { return {}; } };
@@ -839,9 +840,9 @@ function neonStore(createRealtimeClient) {
 
   // 봉인된 쿼리를 구독한다. 만료 10초 전에 갱신하고, 오류가 나면 새 쿼리로 다시 구독한다. 반환값: 해제 함수
   function openLive(fetchSealed, onRows) {
-    let sub = null, used = null, renewTimer = null, retryTimer = null, dead = false, failures = 0, renewFails = 0;
-    const report = s => { if (!dead) statusCb(s); };
-    const stop = () => { clearTimeout(renewTimer); if (sub) { active.delete(sub); try { sub.unsubscribe(); } catch {} sub = null; } };
+    let sub = null, used = null, renewTimer = null, retryTimer = null, watchdog = null, dead = false, failures = 0, renewFails = 0;
+    const report = s => { if (!dead) { lastStatus = s; statusCb(s); } };
+    const stop = () => { clearTimeout(renewTimer); clearTimeout(watchdog); if (sub) { active.delete(sub); try { sub.unsubscribe(); } catch {} sub = null; } };
     const retry = () => {
       stop();
       if (client === used) { try { client.close(); } catch {} client = null; }
@@ -865,10 +866,12 @@ function neonStore(createRealtimeClient) {
       used = getClient();
       sub = used.subscribe(sealed);
       active.add(sub);
+      report("connecting");
+      watchdog = setTimeout(retry, LIVE_TIMEOUT_MS);   // 상태 이벤트 없이 연결 중에 멈춰 있는 경우도 재시도로 이어지게 한다
       sub.onChange(snap => { if (snap.data) onRows(snap.data); });
       sub.onStateChange(st => {
         if (st.status === "error") retry();
-        else if (st.status === "live") { failures = 0; report("live"); }
+        else if (st.status === "live") { clearTimeout(watchdog); failures = 0; report("live"); }
         else if (st.status === "connecting" || st.status === "stale") report("connecting");
       });
       renewIn(Math.max(0, sealed.expiresAt - Date.now() - 10000));
@@ -907,6 +910,7 @@ function neonStore(createRealtimeClient) {
       });
     },
     async send(vid, from, name, text, contact) {
+      if (lastStatus === "error") throw new Error("연결이 끊겨 보낼 수 없습니다. 새로고침 해주세요.");
       const r = await api("/api/send", { text, name, contact: contact || null, ...(from === "o" ? { as: "owner", vid } : {}) });
       if (!r.ok) throw new Error(
         r.status === 429 ? (r.data && r.data.error === "limit" ? "이 대화의 메시지 한도에 도달했습니다." : "너무 빠르게 보내고 있어요. 잠시 후 다시 시도해 주세요.")
@@ -1017,7 +1021,7 @@ async function mountVisitor() {
   });
   chatEl.replaceChildren(
     h("div", { class: "chat-head" }, h("div", { class: "who2" }, dot, "KSY에게 메시지"), txt),
-    store.mode === "demo" ? h("div", { class: "demo-banner" }, "데모 모드(로컬 전용): 이 브라우저 안에서만 동작합니다. 주소 끝에 #admin 을 붙인 탭을 함께 열어 테스트하세요.") : null,
+    ...(store.mode === "demo" ? [h("div", { class: "demo-banner" }, "데모 모드(로컬 전용): 이 브라우저 안에서만 동작합니다. 주소 끝에 #admin 을 붙인 탭을 함께 열어 테스트하세요.")] : []),
     log, h("div", { class: "nickrow" }, h("label", { class: "fld" }, h("span", {}, "닉네임 (선택)"), nick), h("label", { class: "fld" }, h("span", {}, "답장받을 이메일 (선택)"), contact)), c.err, c.form);
   try { vid = await store.visitorId(); }
   catch { c.err.textContent = "서버에 연결하지 못했습니다. 잠시 후 새로고침 해주세요."; c.err.hidden = false; return; }
