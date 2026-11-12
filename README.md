@@ -1,6 +1,6 @@
 # MySite
 
-포트폴리오 사이트(`index.html`)와 실시간 메시지 기능입니다. 메시지는 Neon Realtime과 Vercel Functions(`api/`)로 동작합니다.
+포트폴리오 사이트(`https://ksyintroduction.vercel.app/`)와 실시간 메시지 기능입니다. 메시지는 Neon Realtime과 Vercel Functions(`api/`)로 동작합니다.
 
 - 설계: `docs/superpowers/specs/2026-11-12-realtime-chat-neon-design.md`
 - 구현 계획: `docs/superpowers/plans/2026-11-12-realtime-chat-neon.md`
