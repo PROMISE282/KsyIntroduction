@@ -1,0 +1,6 @@
+.vercel
+.neon
+.env.local
+.env
+node_modules
+.superpowers

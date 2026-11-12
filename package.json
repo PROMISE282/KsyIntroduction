@@ -1,0 +1,19 @@
+{
+  "name": "portfolio-chat",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "test": "node --env-file=.env.local --test tests/",
+    "build:vendor": "esbuild scripts/vendor-entry.js --bundle --format=esm --minify --outfile=vendor/neon-realtime.js"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2"
+  },
+  "dependencies": {
+    "@neon/realtime": "^0.2.1",
+    "@neondatabase/serverless": "^1.2.0"
+  }
+}
