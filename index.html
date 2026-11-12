@@ -260,6 +260,7 @@ h1{font-weight:700;letter-spacing:-.035em}
 @media(max-width:480px){.cta{flex-direction:column;align-items:stretch}.cta .btn{justify-content:center}}
 /* 아이콘 버튼 툴팁 (title 대신, 호버·키보드 포커스에서 표시) */
 .icon-btn{position:relative}
+.i-lang{font:700 17px/1 var(--sans);letter-spacing:0}
 .icon-btn[data-tip]::after{content:attr(data-tip);position:absolute;top:calc(100% + 8px);right:0;white-space:nowrap;padding:4px 8px;border-radius:var(--r-sm);background:var(--text);color:var(--bg);font:500 12px var(--sans);opacity:0;transform:translateY(-4px);transition:opacity .15s var(--ease),transform .15s var(--ease);pointer-events:none;z-index:60}
 .icon-btn[data-tip]:hover::after,.icon-btn[data-tip]:focus-visible::after{opacity:1;transform:none}
 @media(hover:none){.icon-btn[data-tip]::after{display:none}}
@@ -277,20 +278,21 @@ h1{font-weight:700;letter-spacing:-.035em}
 </style>
 </head>
 <body>
-<a class="skip" href="#main">본문으로 건너뛰기</a>
+<a class="skip" href="#main" data-i18n="skip">본문으로 건너뛰기</a>
 
 
 <header class="nav">
   <div class="wrap">
-    <a class="logo" href="#top" aria-label="KSY 홈"><img src="logo.svg" alt="" width="36" height="36"><span>KSY</span></a>
-    <nav aria-label="주요 메뉴">
-      <a href="#about" class="keep">소개</a>
-      <a href="#stack">스택</a>
-      <a href="#projects" class="keep">프로젝트</a>
-      <a href="#timeline" id="navTimeline">경력</a>
-      <a href="#contact" class="keep">연락</a>
+    <a class="logo" href="#top" aria-label="KSY 홈" data-i18n-aria="logoLabel"><img src="logo.svg" alt="" width="36" height="36"><span>KSY</span></a>
+    <nav aria-label="주요 메뉴" data-i18n-aria="navLabel">
+      <a href="#about" class="keep" data-i18n="navAbout">소개</a>
+      <a href="#stack" data-i18n="navStack">스택</a>
+      <a href="#projects" class="keep" data-i18n="navProjects">프로젝트</a>
+      <a href="#timeline" id="navTimeline" data-i18n="navTimeline">경력</a>
+      <a href="#contact" class="keep" data-i18n="navContact">연락</a>
     </nav>
     
+    <button class="icon-btn" id="langBtn" type="button" aria-label="Switch to English" data-tip="Switch to English"><span class="i-lang" aria-hidden="true">가</span></button>
     <button class="icon-btn" id="themeBtn" aria-label="테마 전환" data-tip="테마 전환">
       <svg class="i-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
       <svg class="i-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" hidden><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
@@ -299,13 +301,13 @@ h1{font-weight:700;letter-spacing:-.035em}
 </header>
 
 <main id="main">
-<noscript><div class="wrap" style="padding-top:48px"><p class="lead">이 포트폴리오는 JavaScript가 필요합니다. 활성화하거나, 이메일로 바로 연락해 주세요.</p></div></noscript>
+<noscript><div class="wrap" style="padding-top:48px"><p class="lead">이 포트폴리오는 JavaScript가 필요합니다. 활성화하거나, 이메일로 바로 연락해 주세요.<br>This portfolio requires JavaScript. Please enable it, or contact me by email.</p></div></noscript>
 <section class="hero" id="top">
   <div class="wrap">
     <div class="grid">
       <div>
         <span class="pill"><span class="dot live"></span><span id="availability"></span></span>
-        <p class="who"><b>Frontend</b> — 화면을 만듭니다<br><b>Blockchain</b> — Solidity를 공부합니다</p>
+        <p class="who" data-i18n-html="who"><b>Frontend</b> — 화면을 만듭니다<br><b>Blockchain</b> — Solidity를 공부합니다</p>
         <h1 aria-label="만들면서 배우는 개발자 김성윤.">
           <span class="w" style="--i:0" aria-hidden="true">만들면서</span>
           <span class="w hl" style="--i:1" aria-hidden="true">배우는</span><br>
@@ -314,11 +316,11 @@ h1{font-weight:700;letter-spacing:-.035em}
         </h1>
         <p class="sub" id="heroSub"></p>
         <div class="cta">
-          <a class="btn primary" href="#projects">프로젝트 보기</a>
-          <a class="btn" id="resumeBtn" href="https://app.notion.com/p/31f96405a47d80deb7f2ff6b77c4196f" target="_blank" rel="noopener noreferrer">이력서·포트폴리오 보기</a>
+          <a class="btn primary" href="#projects" data-i18n="ctaProjects">프로젝트 보기</a>
+          <a class="btn" id="resumeBtn" href="https://app.notion.com/p/31f96405a47d80deb7f2ff6b77c4196f" target="_blank" rel="noopener noreferrer" data-i18n="resume">이력서·포트폴리오 보기</a>
         </div>
         <div class="socials" id="socials">
-          <a href="#contact">메시지 보내기</a>
+          <a href="#contact" data-i18n="sendMsg">메시지 보내기</a>
           <a id="resumeFileBtn" href="resume.hwp" download="입사지원서-김성윤.hwp">입사 지원서 내려받기 (HWP)</a>
         </div>
       </div>
@@ -347,24 +349,24 @@ h1{font-weight:700;letter-spacing:-.035em}
 
 <section id="about">
   <div class="wrap">
-    <div class="sec-head rv"><div class="eyebrow">about</div><h2>소개</h2></div>
+    <div class="sec-head rv"><div class="eyebrow">about</div><h2 data-i18n="secAbout">소개</h2></div>
     <div class="bento rv" id="aboutBento"></div>
   </div>
 </section>
 
 <section id="stack">
   <div class="wrap">
-    <div class="sec-head rv"><div class="eyebrow">stack</div><h2>주요 분야 · 기술 스택</h2><p class="lead">분야별로 나눠 정리했습니다.</p></div>
+    <div class="sec-head rv"><div class="eyebrow">stack</div><h2 data-i18n="secStack">주요 분야 · 기술 스택</h2><p class="lead" data-i18n="stackLead">분야별로 나눠 정리했습니다.</p></div>
     <div class="bento rv" id="stackGrid"></div>
-    <p class="hint" id="verifyHint" hidden><span style="color:var(--live)">✓</span> = GitHub 저장소(이름·언어·README·배포 주소)에서 사용이 확인된 기술입니다.</p>
-    <p class="hint" id="stackHint" hidden>→ 스택을 누르면 사용한 프로젝트와 적용한 부분을 볼 수 있습니다. (숫자 = 사용한 프로젝트 수)</p>
+    <p class="hint" id="verifyHint" data-i18n-html="verifyHint" hidden><span style="color:var(--live)">✓</span> = GitHub 저장소(이름·언어·README·배포 주소)에서 사용이 확인된 기술입니다.</p>
+    <p class="hint" id="stackHint" data-i18n="stackHint" hidden>→ 스택을 누르면 사용한 프로젝트와 적용한 부분을 볼 수 있습니다. (숫자 = 사용한 프로젝트 수)</p>
   </div>
 </section>
 
 <section id="projects">
   <div class="wrap">
-    <div class="sec-head rv"><div class="eyebrow">projects</div><h2>프로젝트</h2><p class="lead" id="projLead">문제 정의, 맡은 역할, 결과를 함께 적습니다.</p></div>
-    <div class="filters" id="filters" role="group" aria-label="프로젝트 필터"></div>
+    <div class="sec-head rv"><div class="eyebrow">projects</div><h2 data-i18n="secProjects">프로젝트</h2><p class="lead" id="projLead" data-i18n="projLead">문제 정의, 맡은 역할, 결과를 함께 적습니다.</p></div>
+    <div class="filters" id="filters" role="group" aria-label="프로젝트 필터" data-i18n-aria="filterLabel"></div>
     <p class="sr" id="filterStatus" role="status"></p>
     <div class="bento" id="projectGrid"></div>
   </div>
@@ -372,21 +374,21 @@ h1{font-weight:700;letter-spacing:-.035em}
 
 <section id="timeline">
   <div class="wrap">
-    <div class="sec-head rv"><div class="eyebrow">timeline</div><h2>경력 · 활동</h2></div>
+    <div class="sec-head rv"><div class="eyebrow">timeline</div><h2 data-i18n="secTimeline">경력 · 활동</h2></div>
     <div class="tl rv" id="tl"></div>
   </div>
 </section>
 
 <section id="contact">
   <div class="wrap">
-    <div class="sec-head rv"><div class="eyebrow">contact</div><h2>메시지 남기기</h2></div>
+    <div class="sec-head rv"><div class="eyebrow">contact</div><h2 data-i18n="secContact">메시지 남기기</h2></div>
     <div class="contact rv">
       <div>
-        <p class="lead">로그인 없이 바로 메시지를 보낼 수 있고, 답장도 이 창에서 실시간으로 받아볼 수 있습니다. 창을 닫아도 답장을 받으시려면 아래에 이메일을 함께 남겨 주세요.</p>
+        <p class="lead" data-i18n="contactLead">로그인 없이 바로 메시지를 보낼 수 있고, 답장도 이 창에서 실시간으로 받아볼 수 있습니다. 창을 닫아도 답장을 받으시려면 아래에 이메일을 함께 남겨 주세요.</p>
         <ul class="contact-list" id="contactList"></ul>
-        <p class="privacy">남긴 메시지와 닉네임·연락처는 답장 목적으로만 서버에 저장됩니다. 삭제를 원하시면 위 이메일로 요청해 주세요.</p>
+        <p class="privacy" data-i18n="privacy">남긴 메시지와 닉네임·연락처는 답장 목적으로만 서버에 저장됩니다. 삭제를 원하시면 위 이메일로 요청해 주세요.</p>
       </div>
-      <div class="chat tile" id="chat" aria-label="실시간 메시지"><div class="offline"><p>연결 중…</p></div></div>
+      <div class="chat tile" id="chat" aria-label="실시간 메시지" data-i18n-aria="chatLabel"><div class="offline"><p>연결 중…</p></div></div>
     </div>
   </div>
 </section>
@@ -525,67 +527,218 @@ const isLocal = location.protocol === "file:" || ["localhost", "127.0.0.1", "[::
 const emailLike = s => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
 const ownerEmail = () => (DATA.contact.find(c => c[0].toLowerCase() === "email") || [])[1];
 
+
+/* ============================================================
+   3-0) 언어 (ko / en) — 화면 문구는 STR, 소개·프로젝트 내용은 EN(아래)에서 영어로 바꿉니다
+   ============================================================ */
+const STR = {
+  ko: {
+    title: "김성윤(KSY) — 개발자 포트폴리오", desc: "김성윤의 개발 포트폴리오. 프로젝트와 공개 저장소를 모았습니다.",
+    skip: "본문으로 건너뛰기", logoLabel: "KSY 홈", navLabel: "주요 메뉴",
+    navAbout: "소개", navStack: "스택", navProjects: "프로젝트", navTimeline: "경력", navContact: "연락",
+    who: "<b>Frontend</b> — 화면을 만듭니다<br><b>Blockchain</b> — Solidity를 공부합니다",
+    hero: { label: "만들면서 배우는 개발자 김성윤.", words: [["만들면서"], ["배우는", 1, 1], ["개발자"], ["김성윤."]] },
+    ctaProjects: "프로젝트 보기", resume: "이력서·포트폴리오 보기", sendMsg: "메시지 보내기",
+    secAbout: "소개", secStack: "주요 분야 · 기술 스택", stackLead: "분야별로 나눠 정리했습니다.",
+    verifyHint: '<span style="color:var(--live)">✓</span> = GitHub 저장소(이름·언어·README·배포 주소)에서 사용이 확인된 기술입니다.',
+    stackHint: "→ 스택을 누르면 사용한 프로젝트와 적용한 부분을 볼 수 있습니다. (숫자 = 사용한 프로젝트 수)",
+    secProjects: "프로젝트", projLead: "문제 정의, 맡은 역할, 결과를 함께 적습니다.", filterLabel: "프로젝트 필터",
+    secTimeline: "경력 · 활동", secContact: "메시지 남기기",
+    contactLead: "로그인 없이 바로 메시지를 보낼 수 있고, 답장도 이 창에서 실시간으로 받아볼 수 있습니다. 창을 닫아도 답장을 받으시려면 아래에 이메일을 함께 남겨 주세요.",
+    privacy: "남긴 메시지와 닉네임·연락처는 답장 목적으로만 서버에 저장됩니다. 삭제를 원하시면 위 이메일로 요청해 주세요.",
+    chatLabel: "실시간 메시지", connecting: "연결 중…",
+    langSwitch: "English로 전환", toLight: "라이트 모드로 전환", toDark: "다크 모드로 전환",
+    chipTitle: (n, c) => `${n}을(를) 사용한 프로젝트 ${c}개 보기`, okTitle: "GitHub 저장소에서 확인됨", okAria: "GitHub에서 확인됨",
+    statRepos: "공개 저장소", statLangs: "사용 언어 (GitHub 기준)", statLast: "최근 업데이트",
+    emptyH: "프로젝트를 정리하고 있습니다", emptyP: "완성한 작업부터 문제 정의, 역할, 결과 순서로 하나씩 채워 넣는 중입니다.", viewGh: "GitHub에서 보기",
+    loading: "프로젝트를 불러오는 중…", projLeadLive: "지금 만들고 있는 것과 GitHub 공개 저장소입니다.",
+    inProgress: "진행 중", myRole: "내 역할", viewLive: "라이브 보기", viewCode: "코드 보기",
+    snapHint: d => `GitHub 저장소는 저장된 목록입니다 (기준일 ${d}). GitHub에 연결되면 최신 정보로 자동 교체됩니다.`,
+    autoHint: "GitHub 저장소는 공개 저장소에서 자동으로 불러온 정보입니다.",
+    clearStack: "스택 필터 해제", stackFilter: (s, n) => `${s} 필터: 프로젝트 ${n}개`, usedPart: s => `${s} · 사용한 부분`,
+    locale: "ko-KR", visitor: "방문자",
+    offTitle: "연락하기", offLead: "실시간 메시지는 준비 중입니다. 이메일로 연락해 주세요.", chatHead: "메시지", soon: "준비 중",
+    offLoadFail: "메시지 서버에 연결하지 못했습니다. 잠시 후 새로고침 하시거나 이메일로 연락해 주세요.", offSoon: "실시간 메시지는 곧 열립니다. 지금은 이메일로 연락해 주세요.",
+    stLive: "실시간 연결됨", stDemo: "데모 모드", stConnecting: "연결 중…", stError: "연결 끊김 — 새로고침 해주세요",
+    lblMsg: "메시지", send: "보내기", sendFail: "전송에 실패했습니다.", logLabel: "대화 내용", msgKSY: "KSY에게 메시지",
+    demoBanner: "데모 모드(로컬 전용): 이 브라우저 안에서만 동작합니다. 주소 끝에 #admin 을 붙인 탭을 함께 열어 테스트하세요.",
+    nickLabel: "닉네임 (선택)", mailLabel: "답장받을 이메일 (선택)", emailBad: "이메일 형식을 확인해 주세요.", srvFail: "서버에 연결하지 못했습니다. 잠시 후 새로고침 해주세요.",
+    firstMsg: "첫 메시지를 남겨주세요.\n로그인 없이 바로 전달됩니다.",
+    errDown: "연결이 끊겨 보낼 수 없습니다. 새로고침 해주세요.", errLimit: "이 대화의 메시지 한도에 도달했습니다.", errFast: "너무 빠르게 보내고 있어요. 잠시 후 다시 시도해 주세요.",
+    errCookie: "브라우저에서 쿠키를 허용해야 메시지를 보낼 수 있습니다.", err401: "오너 로그인이 만료되었습니다. 새로고침 해주세요.", err400: "내용을 확인해 주세요."
+  },
+  en: {
+    title: "Seongyun Kim (KSY) — Developer Portfolio", desc: "Seongyun Kim's developer portfolio. A collection of projects and public repositories.",
+    skip: "Skip to content", logoLabel: "KSY home", navLabel: "Main menu",
+    navAbout: "About", navStack: "Stack", navProjects: "Projects", navTimeline: "Career", navContact: "Contact",
+    who: "<b>Frontend</b> — I build interfaces<br><b>Blockchain</b> — I'm studying Solidity",
+    hero: { label: "A developer who learns by building, Seongyun Kim.", words: [["A"], ["developer"], ["who"], ["learns", 1, 1], ["by"], ["building,"], ["Seongyun"], ["Kim."]] },
+    ctaProjects: "View projects", resume: "View résumé · portfolio", sendMsg: "Send a message",
+    secAbout: "About", secStack: "Focus areas · Tech stack", stackLead: "Grouped by area.",
+    verifyHint: '<span style="color:var(--live)">✓</span> = Technologies confirmed in my GitHub repositories (name, language, README, deployment URL).',
+    stackHint: "→ Select a stack item to see the projects that use it and where it was applied. (Number = projects using it)",
+    secProjects: "Projects", projLead: "Each entry covers the problem, my role and the result.", filterLabel: "Project filters",
+    secTimeline: "Career · Activities", secContact: "Leave a message",
+    contactLead: "You can send a message without logging in, and receive replies right here in real time. If you'd like a reply after closing this window, leave your email below.",
+    privacy: "Your message, nickname and contact are stored on the server only to reply to you. To have them deleted, email me at the address above.",
+    chatLabel: "Live messages", connecting: "Connecting…",
+    langSwitch: "한국어로 전환", toLight: "Switch to light mode", toDark: "Switch to dark mode",
+    chipTitle: (n, c) => `View ${c} project${c === 1 ? "" : "s"} using ${n}`, okTitle: "Confirmed in GitHub repositories", okAria: "Confirmed on GitHub",
+    statRepos: "Public repositories", statLangs: "Languages (per GitHub)", statLast: "Last updated",
+    emptyH: "Projects are being organized", emptyP: "I'm filling them in one by one, starting with finished work: problem, role, then result.", viewGh: "View on GitHub",
+    loading: "Loading projects…", projLeadLive: "What I'm building now, plus my public GitHub repositories.",
+    inProgress: "In progress", myRole: "My role", viewLive: "View live", viewCode: "View code",
+    snapHint: d => `GitHub repositories are from a saved list (as of ${d}). It is replaced with the latest data automatically once GitHub is reachable.`,
+    autoHint: "GitHub repositories are loaded automatically from my public repositories.",
+    clearStack: "Clear stack filter", stackFilter: (s, n) => `${s} filter: ${n} project${n === 1 ? "" : "s"}`, usedPart: s => `${s} · where it's used`,
+    locale: "en-US", visitor: "Visitor",
+    offTitle: "Get in touch", offLead: "Live messaging is coming soon. Please contact me by email.", chatHead: "Messages", soon: "Coming soon",
+    offLoadFail: "Couldn't connect to the message server. Please refresh in a moment, or contact me by email.", offSoon: "Live messaging opens soon. For now, please contact me by email.",
+    stLive: "Live", stDemo: "Demo mode", stConnecting: "Connecting…", stError: "Disconnected — please refresh",
+    lblMsg: "Message", send: "Send", sendFail: "Failed to send.", logLabel: "Conversation", msgKSY: "Message KSY",
+    demoBanner: "Demo mode (local only): works inside this browser only. Open a second tab with #admin at the end of the address to test.",
+    nickLabel: "Nickname (optional)", mailLabel: "Email for replies (optional)", emailBad: "Please check the email format.", srvFail: "Couldn't connect to the server. Please refresh in a moment.",
+    firstMsg: "Leave your first message.\nIt's delivered right away, no login needed.",
+    errDown: "Disconnected, so the message can't be sent. Please refresh.", errLimit: "This conversation has reached its message limit.", errFast: "You're sending too fast. Please try again shortly.",
+    errCookie: "Cookies must be allowed in your browser to send messages.", err401: "The owner login has expired. Please refresh.", err400: "Please check your message."
+  }
+};
+let lang = safeGet("pf_lang") === "en" ? "en" : "ko";
+const t = (k, ...a) => { const v = STR[lang][k]; return typeof v === "function" ? v(...a) : v; };
+
+/* 영어 판 콘텐츠: DATA 에서 문장이 들어 있는 항목만 덮어씁니다. (링크·태그·연락처는 그대로) */
+const EN = {
+  ...DATA,
+  availability: "Open to new project inquiries",
+  heroSub: "I'm Seongyun Kim, a developer interested in blockchain and Web3 infrastructure, building up my frontend and Solidity skills.",
+  resumeFileLabel: "Download application (HWP)",
+  about: {
+    headline: "I let what I've built speak.",
+    points: [
+      ["Building interfaces", "I turn Figma designs into React and TypeScript, and carry them through dark mode and responsive layouts"],
+      ["Usability · accessibility", "I polish details such as code-editor autocomplete and how screen readers read the page"],
+      ["Learning blockchain", "I'm building a Solidity and NFT ticketing service on my own, as a way to learn"]
+    ],
+    flow: [
+      ["What I've done", "Implementing Figma designs, dark mode and responsive layouts, accessibility improvements"],
+      ["What I'm doing", "Studying Solidity and building an NFT ticketing service"],
+      ["Next", "Building screens I design myself"]
+    ]
+  },
+  facts: [
+    ["frontend", "I've turned designs into screens, and next I'll build screens I design myself"],
+    ["blockchain", "I've been studying Solidity, and now I'm building it into a real service"],
+    ["interest", "Web3 infrastructure · Blockchain · DApps"],
+    ["education", "Student at Gyeongbuk Software Meister High School"]
+  ],
+  extraProjects: DATA.extraProjects.map((p, i) => ({ ...p, ...[
+    { title: "UnsolvableOJ", status: "MVP",
+      desc: "An online judge MVP for solving problems and grading code. It supports the basic flow from creating problems to submitting code and viewing results.",
+      role: "Frontend · Based on Figma designs, I built the home, problem list, solving screen, community and profile. I handled code-editor autocomplete, dark mode and responsive layout, screen-reader accessibility improvements, and Sentry error monitoring. (Sep–Oct 2026, 127 of 199 commits on the seongyun branch)",
+      image: { ...p.image, alt: "UnsolvableOJ home screen: an intro card reading 'An online judge that grows like a game', with 10 public problems, 8 supported languages and real-time auto-grading info" } },
+    { title: "NFTicket (working title)", status: "In progress",
+      desc: "I'm building an NFT ticketing service as I learn. The frontend is still in progress.",
+      role: "A solo personal learning project." }
+  ][i] })),
+  repoRoles: {
+    "trial-review-plugin": "Solo project · Wrote the trial-review skill (a trial-format evaluation skill) and refined its verdict and table-format rules over several rounds, releasing v1.1.0. (10 commits, Nov 2026)"
+  },
+  repoNotes: { "trial-review-plugin": "A Claude plugin that evaluates changes in a PM / confirm-manager trial format" }
+};
+const D = () => lang === "en" ? EN : DATA;
+
+function applyI18n() {
+  root.lang = lang;
+  document.title = t("title");
+  const meta = (sel, v) => { const m = document.querySelector(sel); if (m) m.setAttribute("content", v); };
+  meta('meta[name="description"]', t("desc")); meta('meta[property="og:title"]', t("title")); meta('meta[property="og:description"]', t("desc"));
+  document.querySelectorAll("[data-i18n]").forEach(el => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll("[data-i18n-html]").forEach(el => { el.innerHTML = t(el.dataset.i18nHtml); });
+  document.querySelectorAll("[data-i18n-aria]").forEach(el => { el.setAttribute("aria-label", t(el.dataset.i18nAria)); });
+  // 아이콘은 지금 언어를 보여준다: 한국어=가, 영어=A
+  const lb = $("#langBtn");
+  lb.firstElementChild.textContent = lang === "ko" ? "가" : "A";
+  lb.setAttribute("aria-label", t("langSwitch")); lb.dataset.tip = t("langSwitch");
+  syncTheme();
+}
+
+let syncTheme = () => {};
 (function prefs() {
-  const t = safeGet("pf_theme"); if (t) root.dataset.theme = t;
+  const saved = safeGet("pf_theme"); if (saved) root.dataset.theme = saved;
   const tb = $("#themeBtn");
   const current = () => root.dataset.theme || (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
   // 아이콘은 지금 모드를 보여준다: 라이트=해, 다크=달
   const sync = () => {
     const dark = current() === "dark";
     $(".i-sun", tb).hidden = dark; $(".i-moon", tb).hidden = !dark;
-    const label = dark ? "라이트 모드로 전환" : "다크 모드로 전환";
+    const label = dark ? t("toLight") : t("toDark");
     tb.setAttribute("aria-label", label); tb.dataset.tip = label;
   };
+  syncTheme = sync;
   sync();
   matchMedia("(prefers-color-scheme: light)").addEventListener("change", sync);
   tb.addEventListener("click", () => {
     const next = current() === "dark" ? "light" : "dark";
     root.dataset.theme = next; safeSet("pf_theme", next); sync();
   });
+  $("#langBtn").addEventListener("click", () => {
+    lang = lang === "ko" ? "en" : "ko"; safeSet("pf_lang", lang);
+    applyI18n(); renderStatic(); renderProjects(); route();
+  });
 })();
 
 const usedCount = n => DATA.projects.filter(p => p.uses && p.uses[n]).length;
+
+function renderHero() {
+  const hero = t("hero"), h1 = $("#top h1");
+  h1.setAttribute("aria-label", hero.label);
+  h1.replaceChildren(...hero.words.flatMap(([w, hl, br], i) =>
+    [h("span", { class: "w" + (hl ? " hl" : ""), style: `--i:${i}`, "aria-hidden": "true" }, w), br ? h("br") : " "]));
+}
 
 function initResume() {
   const set = (id, href) => { const b = $(id); b.hidden = !href; if (href) b.href = href; return b; };
   set("#resumeBtn", DATA.resume);
   const f = set("#resumeFileBtn", DATA.resumeFile ? encodeURI(DATA.resumeFile) : "");
-  if (DATA.resumeFile) { f.textContent = DATA.resumeFileLabel || "입사 지원서 내려받기"; f.setAttribute("download", DATA.resumeFileName || ""); }
+  if (DATA.resumeFile) { f.textContent = D().resumeFileLabel || "입사 지원서 내려받기"; f.setAttribute("download", DATA.resumeFileName || ""); }
 }
 
 function renderStatic() {
-  $("#availability").textContent = DATA.availability;
-  $("#heroSub").textContent = DATA.heroSub;
+  const c = D();
+  renderHero();
+  $("#availability").textContent = c.availability;
+  $("#heroSub").textContent = c.heroSub;
   $("#yr").textContent = new Date().getFullYear();
   initResume();
-  $("#socials").append(...DATA.socials.map(s => h("a", { href: s.href, target: "_blank", rel: "noopener noreferrer" }, s.label + " ↗")));
+  $("#socials").querySelectorAll("[data-dyn]").forEach(a => a.remove());
+  $("#socials").append(...DATA.socials.map(s => h("a", { "data-dyn": "", href: s.href, target: "_blank", rel: "noopener noreferrer" }, s.label + " ↗")));
 
   // 제목은 정적으로 두고 마지막 어절만 강조색
-  const words = DATA.about.headline.split(/\s+/), last = words.pop();
+  const words = c.about.headline.split(/\s+/), last = words.pop();
   const fill = h("p", { class: "fill" }, words.join(" ") + " ", h("em", {}, last));
-  $("#aboutBento").append(
+  $("#aboutBento").replaceChildren(
     h("div", { class: "tile s8" }, fill,
-      h("ul", { class: "pts" }, DATA.about.points.map(([t, d], i) => h("li", {}, h("i", {}, "0" + (i + 1)), h("b", {}, t), h("span", {}, d)))),
-      h("div", { class: "flow" }, DATA.about.flow.map(([k, v]) => h("div", {}, h("small", {}, k), h("p", {}, v))))),
-    h("div", { class: "tile s4" }, h("ul", { class: "facts" }, DATA.facts.map(([k, v]) => h("li", {}, h("span", {}, k), h("span", {}, v))))),
+      h("ul", { class: "pts" }, c.about.points.map(([t, d], i) => h("li", {}, h("i", {}, "0" + (i + 1)), h("b", {}, t), h("span", {}, d)))),
+      h("div", { class: "flow" }, c.about.flow.map(([k, v]) => h("div", {}, h("small", {}, k), h("p", {}, v))))),
+    h("div", { class: "tile s4" }, h("ul", { class: "facts" }, c.facts.map(([k, v]) => h("li", {}, h("span", {}, k), h("span", {}, v))))),
     ...DATA.stats.map(s => h("div", { class: "tile s4 stat" }, h("strong", {}, s.v), h("span", {}, s.l))));
 
-  $("#stackGrid").append(...DATA.stack.map(g =>
+  $("#stackGrid").replaceChildren(...DATA.stack.map(g =>
     h("div", { class: "tile " + g.span },
       h("h3", { class: "gh" }, g.group),
       h("div", { class: "chips" }, g.items.map(n => {
         const cnt = usedCount(n);
         return cnt
-          ? h("button", { class: "chip", type: "button", "data-k": n, title: `${n}을(를) 사용한 프로젝트 ${cnt}개 보기`, onclick: () => pickStack(n) }, n, h("em", {}, cnt))
+          ? h("button", { class: "chip", type: "button", "data-k": n, title: t("chipTitle", n, cnt), onclick: () => pickStack(n) }, n, h("em", {}, cnt))
           : h("span", { class: "chip static", "data-k": n }, n);
       }))
     )));
   $("#stackHint").hidden = !DATA.projects.some(p => p.uses && Object.keys(p.uses).length);
 
-  if (DATA.timeline.length) $("#tl").append(...DATA.timeline.map(t => h("article", {}, h("time", {}, t.when), h("h3", {}, t.title), h("p", {}, t.text))));
+  if (DATA.timeline.length) $("#tl").replaceChildren(...DATA.timeline.map(t => h("article", {}, h("time", {}, t.when), h("h3", {}, t.title), h("p", {}, t.text))));
   else { $("#timeline").hidden = true; $("#navTimeline").hidden = true; }
 
-  $("#contactList").append(...DATA.contact.map(([k, label, href]) =>
+  $("#contactList").replaceChildren(...DATA.contact.map(([k, label, href]) =>
     h("li", {}, href
       ? h("a", { href, ...(href.startsWith("mailto:") ? { class: "mail" } : {}), target: href.startsWith("http") ? "_blank" : null, rel: "noopener noreferrer" }, h("span", {}, h("small", {}, k), label))
       : h("div", { class: "plain" }, h("span", {}, h("small", {}, k), label)))));
@@ -673,7 +826,7 @@ function markVerified(evidence) {
   document.querySelectorAll(".chip[data-k]").forEach(c => {
     const n = c.dataset.k.toLowerCase();
     if ((keys[n] || [n]).some(k => evidence.includes(k))) {
-      if (!c.querySelector(".ok")) c.append(h("i", { class: "ok", title: "GitHub 저장소에서 확인됨", "aria-label": "GitHub에서 확인됨" }, "✓"));
+      if (!c.querySelector(".ok")) c.append(h("i", { class: "ok", title: t("okTitle"), "aria-label": t("okAria") }, "✓"));
       c.classList.remove("unv"); any = true;
     } else c.classList.add("unv");
   });
@@ -682,30 +835,32 @@ function markVerified(evidence) {
 /* GitHub에서 집계한 실제 수치 (지어낸 숫자 없음) */
 function renderGhStats(s) {
   if ($("#ghStats")) return;
-  const items = [[s.repos, "공개 저장소"], [s.langs, "사용 언어 (GitHub 기준)"], [s.last, "최근 업데이트"]];
+  const items = [[s.repos, t("statRepos")], [s.langs, t("statLangs")], [s.last, t("statLast")]];
   $("#aboutBento").append(...items.map(([v, l], i) =>
     h("div", { class: "tile s4 stat", ...(i === 0 ? { id: "ghStats" } : {}) }, h("strong", {}, v), h("span", {}, l))));
 }
 function emptyProjects(grid) {
   const gh = DATA.socials.find(s => /github\.com/.test(s.href));
   grid.replaceChildren(h("div", { class: "tile empty-proj" },
-    h("h3", {}, "프로젝트를 정리하고 있습니다"),
-    h("p", {}, "완성한 작업부터 문제 정의, 역할, 결과 순서로 하나씩 채워 넣는 중입니다."),
-    gh ? h("a", { class: "btn", href: gh.href, target: "_blank", rel: "noopener noreferrer" }, "GitHub에서 보기") : null));
+    h("h3", {}, t("emptyH")),
+    h("p", {}, t("emptyP")),
+    gh ? h("a", { class: "btn", href: gh.href, target: "_blank", rel: "noopener noreferrer" }, t("viewGh")) : null));
 }
 /* 프로젝트 화면 이미지: 파일이 없거나 열리지 않으면 조용히 제거 (깨진 이미지 아이콘 방지) */
 const shot = im => im && im.src
   ? h("img", { class: "shot", src: im.src, alt: im.alt || "", loading: "lazy", decoding: "async", width: 640, height: 360, onerror: e => e.target.remove() })
   : null;
 
+let ghData = null;
 async function renderGithub(grid) {
   const user = ghUser();
-  const extras = DATA.extraProjects || [], pin = DATA.pinRepos || [];
-  grid.replaceChildren(h("div", { class: "tile empty-proj", "aria-busy": "true" }, h("p", {}, "프로젝트를 불러오는 중…")));
-  let data = null;
-  if (user) {
+  const c = D(), extras = c.extraProjects || [], pin = DATA.pinRepos || [];
+  let data = ghData;   // 언어만 바꿀 때는 다시 불러오지 않는다
+  if (!data) grid.replaceChildren(h("div", { class: "tile empty-proj", "aria-busy": "true" }, h("p", {}, t("loading"))));
+  if (user && !data) {
     try { data = await fetchRepos(user); }
     catch { data = GH_SNAPSHOT.user === user ? { ...GH_SNAPSHOT, fallback: true } : null; }
+    ghData = data;
   }
   const repos = data ? data.list.filter(r => !pin.length || pin.includes(r.name)) : [];
   if (data) { markVerified(data.evidence); if (data.stats) renderGhStats(data.stats); }
@@ -715,29 +870,29 @@ async function renderGithub(grid) {
   const feat = total >= 3 && !!(extras[0] && extras[0].image);
   const span = feat || total === 2 || total === 4 ? "s6" : "s4";
   const link = (href, label) => href ? h("a", { href, target: "_blank", rel: "noopener noreferrer" }, label) : null;
-  $("#projLead").textContent = "지금 만들고 있는 것과 GitHub 공개 저장소입니다.";
+  $("#projLead").textContent = t("projLeadLive");
   grid.replaceChildren(
     ...extras.map((p, i) => h("article", { class: "tile lift proj " + (feat && i === 0 ? "feat" : span) },
       h("div", { class: "top" }, h("span", {}, String(i + 1).padStart(2, "0")),
-        h("span", { class: "net" }, h("span", { class: "dot warn" }), p.status || "진행 중")),
+        h("span", { class: "net" }, h("span", { class: "dot warn" }), p.status || t("inProgress"))),
       shot(p.image),
       h("h3", {}, p.title),
       p.desc ? h("p", {}, p.desc) : null,
-      p.role ? h("div", { class: "usage" }, h("b", {}, "내 역할"), p.role) : null,
-      h("div", { class: "tags" }, (p.tags || []).map(t => h("span", {}, t))),
-      h("div", { class: "links" }, link(p.live, "라이브 보기"), link(p.code, "코드 보기")))),
+      p.role ? h("div", { class: "usage" }, h("b", {}, t("myRole")), p.role) : null,
+      h("div", { class: "tags" }, (p.tags || []).map(x => h("span", {}, x))),
+      h("div", { class: "links" }, link(p.live, t("viewLive")), link(p.code, t("viewCode"))))),
     ...repos.map((r, i) => h("article", { class: "tile lift proj " + span },
       h("div", { class: "top" }, h("span", {}, String(extras.length + i + 1).padStart(2, "0") + " · " + r.pushed.slice(0, 7).replace("-", ".")),
         h("span", { class: "net" }, h("span", { class: "dot live" }), "GitHub")),
       shot(DATA.repoImages[r.name]),
       h("h3", {}, r.title || r.name),
-      (DATA.repoNotes[r.name] || r.desc || r.readme) ? h("p", {}, DATA.repoNotes[r.name] || r.desc || r.readme) : null,
-      DATA.repoRoles[r.name] ? h("div", { class: "usage" }, h("b", {}, "내 역할"), DATA.repoRoles[r.name]) : null,
+      (c.repoNotes[r.name] || r.desc || r.readme) ? h("p", {}, c.repoNotes[r.name] || r.desc || r.readme) : null,
+      c.repoRoles[r.name] ? h("div", { class: "usage" }, h("b", {}, t("myRole")), c.repoRoles[r.name]) : null,
       h("div", { class: "tags" }, [r.title && r.title !== r.name ? h("span", {}, r.name) : null, r.lang ? h("span", {}, r.lang) : null].filter(Boolean)),
-      h("div", { class: "links" }, link(r.live, "라이브 보기"), link(r.url, "코드 보기")))),
+      h("div", { class: "links" }, link(r.live, t("viewLive")), link(r.url, t("viewCode"))))),
     repos.length ? h("p", { class: "hint", style: "grid-column:1/-1" }, data.fallback
-      ? `GitHub 저장소는 저장된 목록입니다 (기준일 ${data.asOf}). GitHub에 연결되면 최신 정보로 자동 교체됩니다.`
-      : "GitHub 저장소는 공개 저장소에서 자동으로 불러온 정보입니다.") : null);
+      ? t("snapHint", data.asOf)
+      : t("autoHint")) : null);
 }
 
 function renderProjects() {
@@ -755,18 +910,18 @@ function renderProjects() {
   const draw = () => {
     bar.replaceChildren(...[
       ...cats.map(c => h("button", { class: "filter", "aria-pressed": String(c === active && !stack), onclick: () => { active = c; stack = null; draw(); } }, c)),
-      stack && h("button", { class: "filter", "aria-pressed": "true", title: "스택 필터 해제", onclick: () => { stack = null; draw(); } }, stack + " ✕")
+      stack && h("button", { class: "filter", "aria-pressed": "true", title: t("clearStack"), onclick: () => { stack = null; draw(); } }, stack + " ✕")
     ].filter(Boolean));
     const list = DATA.projects.filter(p => stack ? p.uses && p.uses[stack] : (active === "All" || p.cat === active));
-    status.textContent = stack ? `${stack} 필터: 프로젝트 ${list.length}개` : "";
+    status.textContent = stack ? t("stackFilter", stack, list.length) : "";
     grid.replaceChildren(...list.map((p, i) =>
       h("article", { class: "tile lift proj " + spans[i % spans.length] },
         h("div", { class: "top" }, h("span", {}, String(i + 1).padStart(2, "0") + " · " + p.year), h("span", { class: "net" }, h("span", { class: "dot" }), p.net)),
         h("h3", {}, p.title), h("p", {}, p.desc),
-        stack ? h("div", { class: "usage" }, h("b", {}, stack + " · 사용한 부분"), p.uses[stack]) : null,
+        stack ? h("div", { class: "usage" }, h("b", {}, t("usedPart", stack)), p.uses[stack]) : null,
         p.impact ? h("div", { class: "impact" }, p.impact) : null,
         h("div", { class: "tags" }, p.tags.map(t => h("span", {}, t))),
-        h("div", { class: "links" }, link(p.live, "라이브 보기"), link(p.code, "코드 보기")))));
+        h("div", { class: "links" }, link(p.live, t("viewLive")), link(p.code, t("viewCode"))))));
   };
   draw();
   pickStack = n => {
@@ -872,14 +1027,14 @@ function neonStore(createRealtimeClient, createLiveOpener) {
       });
     },
     async send(vid, from, name, text, contact) {
-      if (lastStatus === "error") throw new Error("연결이 끊겨 보낼 수 없습니다. 새로고침 해주세요.");
+      if (lastStatus === "error") throw new Error(t("errDown"));
       const r = await api("/api/send", { text, name, contact: contact || null, ...(from === "o" ? { as: "owner", vid } : {}) });
       if (!r.ok) throw new Error(
-        r.status === 429 ? (r.data && r.data.error === "limit" ? "이 대화의 메시지 한도에 도달했습니다." : "너무 빠르게 보내고 있어요. 잠시 후 다시 시도해 주세요.")
-        : r.status === 403 ? "브라우저에서 쿠키를 허용해야 메시지를 보낼 수 있습니다."
-        : r.status === 401 ? "오너 로그인이 만료되었습니다. 새로고침 해주세요."
-        : r.status === 400 ? "내용을 확인해 주세요."
-        : "전송에 실패했습니다.");
+        r.status === 429 ? (r.data && r.data.error === "limit" ? t("errLimit") : t("errFast"))
+        : r.status === 403 ? t("errCookie")
+        : r.status === 401 ? t("err401")
+        : r.status === 400 ? t("err400")
+        : t("sendFail"));
       // 보낸 메시지가 구독에 도착할 때까지 기다린다(입력창은 그 뒤에 비워짐). 못 기다려도 전송은 이미 끝난 상태
       const sub = [...active][0];
       if (sub && r.data && r.data.txid) { try { await sub.awaitTxId(r.data.txid, 5000); } catch {} }
@@ -903,9 +1058,9 @@ let store = null;
    ============================================================ */
 const chatEl = $("#chat");
 const fmt = ts => {
-  const d = new Date(), t = new Date(ts);
-  const time = t.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" });
-  return t.toDateString() === d.toDateString() ? time : `${t.getMonth() + 1}.${t.getDate()} ${time}`;
+  const d = new Date(), x = new Date(ts);
+  const time = x.toLocaleTimeString(t("locale"), { hour: "2-digit", minute: "2-digit" });
+  return x.toDateString() === d.toDateString() ? time : `${x.getMonth() + 1}.${x.getDate()} ${time}`;
 };
 const MAX = 1000;
 let teardown = [], routeId = 0;
@@ -915,13 +1070,13 @@ function renderOffline() {
   const mail = ownerEmail();
   // 연결이 안 되는 동안엔 실시간 채팅을 약속하는 문구를 바꾸고, 빈 큰 상자 대신 작은 안내 카드로 줄인다
   chatEl.classList.add("compact");
-  $("#contact h2").textContent = "연락하기";
-  $("#contact .lead").textContent = "실시간 메시지는 준비 중입니다. 이메일로 연락해 주세요.";
+  $("#contact h2").textContent = t("offTitle");
+  $("#contact .lead").textContent = t("offLead");
   $("#contact .privacy").hidden = true;
   chatEl.replaceChildren(
-    h("div", { class: "chat-head" }, h("div", { class: "who2" }, h("span", { class: "dot" }), "메시지"), h("span", { class: "state" }, "준비 중")),
+    h("div", { class: "chat-head" }, h("div", { class: "who2" }, h("span", { class: "dot" }), t("chatHead")), h("span", { class: "state" }, t("soon"))),
     h("div", { class: "offline" },
-      h("p", {}, store.reason === "load-failed" ? "메시지 서버에 연결하지 못했습니다. 잠시 후 새로고침 하시거나 이메일로 연락해 주세요." : "실시간 메시지는 곧 열립니다. 지금은 이메일로 연락해 주세요."),
+      h("p", {}, store.reason === "load-failed" ? t("offLoadFail") : t("offSoon")),
       mail ? h("a", { class: "btn primary", href: "mailto:" + mail }, mail) : null));
 }
 
@@ -929,15 +1084,15 @@ function statusUI() {
   const dot = h("span", { class: "dot" }), txt = h("span", { class: "state" });
   store.onStatus(s => {
     dot.className = "dot " + (s === "live" ? "live" : s === "error" ? "" : "warn");
-    txt.textContent = { live: "실시간 연결됨", demo: "데모 모드", connecting: "연결 중…", error: "연결 끊김 — 새로고침 해주세요" }[s] || s;
+    txt.textContent = { live: t("stLive"), demo: t("stDemo"), connecting: t("stConnecting"), error: t("stError") }[s] || s;
   });
   return { dot, txt };
 }
 
 function bindCompose(onSend) {
   const ta = h("textarea", { id: "fMsg", name: "message", rows: 1, maxlength: MAX });
-  const taLabel = h("label", { class: "msg-l", for: "fMsg" }, "메시지");
-  const btn = h("button", { class: "btn primary", type: "submit" }, "보내기");
+  const taLabel = h("label", { class: "msg-l", for: "fMsg" }, t("lblMsg"));
+  const btn = h("button", { class: "btn primary", type: "submit" }, t("send"));
   const err = h("div", { class: "err", role: "alert", hidden: true });
   // 봇 방지 허니팟: 사람에게는 보이지 않고, 채워지면 조용히 무시
   const hp = h("input", { name: "website", tabindex: "-1", autocomplete: "off", "aria-hidden": "true", style: "position:absolute;left:-9999px;width:1px;height:1px;opacity:0" });
@@ -948,7 +1103,7 @@ function bindCompose(onSend) {
     if (!text || hp.value || Date.now() - last < 800) return;
     last = Date.now(); btn.disabled = true; err.hidden = true;
     try { await onSend(text); ta.value = ""; ta.style.height = ""; }
-    catch (x) { last = 0; err.textContent = x.message || "전송에 실패했습니다."; err.hidden = false; }
+    catch (x) { last = 0; err.textContent = x.message || t("sendFail"); err.hidden = false; }
     finally { btn.disabled = false; ta.focus(); }
   } }, taLabel, ta, hp, btn);
   ta.addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); form.requestSubmit(); } });
@@ -961,7 +1116,7 @@ function drawLog(log, msgs, mineFrom, emptyText) {
   log.replaceChildren(...(msgs.length ? msgs.map(m =>
     h("div", { class: "msg" + (m.from === mineFrom ? " me" : "") },
       h("div", { class: "b" }, m.text),
-      h("small", {}, (m.from === "o" ? "KSY" : m.name || "방문자") + " · " + fmt(m.ts))))
+      h("small", {}, (m.from === "o" ? "KSY" : m.name || t("visitor")) + " · " + fmt(m.ts))))
     : [h("div", { class: "empty" }, emptyText)]));
   if (nearBottom || msgs.length <= 1) log.scrollTop = log.scrollHeight;
 }
@@ -971,7 +1126,7 @@ async function mountVisitor() {
   const my = ++routeId;
   if (store.mode === "offline") return renderOffline();
   const { dot, txt } = statusUI();
-  const log = h("div", { class: "log", role: "log", "aria-live": "polite", "aria-label": "대화 내용" });
+  const log = h("div", { class: "log", role: "log", "aria-live": "polite", "aria-label": t("logLabel") });
   const nick = h("input", { class: "nick", name: "nickname", maxlength: 20, value: safeGet("pf_nick") || "" });
   const contact = h("input", { class: "nick", type: "email", maxlength: 100, name: "email", placeholder: "name@company.com", autocomplete: "email", value: safeGet("pf_contact") || "" });
   nick.addEventListener("change", () => safeSet("pf_nick", nick.value.trim()));
@@ -979,17 +1134,17 @@ async function mountVisitor() {
   let vid;
   const c = bindCompose(text => {
     const ct = contact.value.trim();
-    if (ct && !emailLike(ct)) throw new Error("이메일 형식을 확인해 주세요.");
-    return store.send(vid, "v", nick.value.trim() || "방문자", text, ct);
+    if (ct && !emailLike(ct)) throw new Error(t("emailBad"));
+    return store.send(vid, "v", nick.value.trim() || t("visitor"), text, ct);
   });
   chatEl.replaceChildren(
-    h("div", { class: "chat-head" }, h("div", { class: "who2" }, dot, "KSY에게 메시지"), txt),
-    ...(store.mode === "demo" ? [h("div", { class: "demo-banner" }, "데모 모드(로컬 전용): 이 브라우저 안에서만 동작합니다. 주소 끝에 #admin 을 붙인 탭을 함께 열어 테스트하세요.")] : []),
-    log, h("div", { class: "nickrow" }, h("label", { class: "fld" }, h("span", {}, "닉네임 (선택)"), nick), h("label", { class: "fld" }, h("span", {}, "답장받을 이메일 (선택)"), contact)), c.err, c.form);
+    h("div", { class: "chat-head" }, h("div", { class: "who2" }, dot, t("msgKSY")), txt),
+    ...(store.mode === "demo" ? [h("div", { class: "demo-banner" }, t("demoBanner"))] : []),
+    log, h("div", { class: "nickrow" }, h("label", { class: "fld" }, h("span", {}, t("nickLabel")), nick), h("label", { class: "fld" }, h("span", {}, t("mailLabel")), contact)), c.err, c.form);
   try { vid = await store.visitorId(); }
-  catch { c.err.textContent = "서버에 연결하지 못했습니다. 잠시 후 새로고침 해주세요."; c.err.hidden = false; return; }
+  catch { c.err.textContent = t("srvFail"); c.err.hidden = false; return; }
   if (my !== routeId) return;
-  teardown.push(store.watchThread(vid, msgs => drawLog(log, msgs, "v", "첫 메시지를 남겨주세요.\n로그인 없이 바로 전달됩니다.")));
+  teardown.push(store.watchThread(vid, msgs => drawLog(log, msgs, "v", t("firstMsg"))));
 }
 
 function mountAdmin() {
@@ -1053,6 +1208,7 @@ addEventListener("hashchange", route);
 /* ============================================================
    6) 부트
    ============================================================ */
+applyI18n();
 renderStatic();
 renderProjects();
 interactions();
