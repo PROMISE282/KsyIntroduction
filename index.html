@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>김성윤(KSY) — 개발자 포트폴리오</title>
 <meta name="description" content="김성윤의 개발 포트폴리오. 프로젝트와 공개 저장소를 모았습니다.">
-<meta name="theme-color" content="#0d0b1c">
+<meta name="theme-color" content="#06040f">
 <link rel="icon" type="image/svg+xml" href="logo.svg">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta property="og:title" content="김성윤(KSY) — 개발자 포트폴리오">
@@ -475,6 +475,122 @@ section:not(.hero)::before{content:"";position:absolute;top:0;left:50%;width:min
 :root[data-motion="off"] .btn{translate:none}
 @media(prefers-reduced-motion:reduce){.btn{translate:none}}
 .i-pause,.i-play{display:block}
+
+/* ───── 디자인 개편 v6 (2026-11-16): 리퀴드 글래스 + 플라즈마 글로우 ─────
+   면: 불투명 면을 모두 반투명 유리로 바꾼다 (뒤 배경 흐림 + 위쪽 반사광 + 이중 테두리 + 캡슐 형태).
+   톤: 메인 컬러 블루바이올렛 한 계열. 그라데이션은 양옆으로 조금만 벌린 색(--accent-2·--accent-3)까지만 쓴다. 화면 전체 뒤에 느리게 흐르는 빛 덩어리를 고정으로 깐다.
+   성능: backdrop-filter는 큰 면(내비·타일·코드 카드·배지·연락처·버튼)에만, 타일 안의 칩·태그는 반투명 채움만 쓴다.
+   모든 장식 모션은 "움직임 끄기"·prefers-reduced-motion에서 멈춘다. */
+:root{--r-sm:10px;--r-md:14px;--r-lg:24px;
+  --bg:#06040f;--bg-2:rgba(10,6,26,.42);--surface:rgba(255,255,255,.06);--surface-2:rgba(255,255,255,.11);--line:rgba(255,255,255,.1);--line-2:rgba(255,255,255,.22);--field:#8d83b8;--text:#f5f0ff;--muted:#bdb4da;--faint:#a79ec8;--dim:#2c2350;
+  --accent:#a58bff;--accent-2:#b48cff;--accent-3:#8f9bff;--accent-ink:#0a0618;--accent-soft:rgba(165,139,255,.14);--glow:rgba(150,120,255,.16);
+  --p1:rgba(150,90,255,.32);--p2:rgba(110,80,255,.42);--p3:rgba(80,110,255,.28);--p4:rgba(190,170,255,.12);
+  --glass-fill:linear-gradient(145deg,rgba(255,255,255,.12),rgba(255,255,255,.03) 40%,rgba(255,255,255,.07)),rgba(16,10,38,.46);
+  --glass-blur:blur(24px) saturate(1.8);--glass-edge:rgba(255,255,255,.13);--glass-hi:rgba(255,255,255,.6);--glass-hi-soft:rgba(255,255,255,.2);
+  --glass-shadow:inset 0 1px 0 rgba(255,255,255,.22),inset 0 -1px 0 rgba(255,255,255,.05),inset 0 0 40px rgba(255,255,255,.03),0 30px 70px -36px rgba(0,0,0,.8),0 0 70px -40px var(--accent-2)}
+:root[data-theme="light"]{--bg:#f2edfc;--bg-2:rgba(255,255,255,.42);--surface:rgba(255,255,255,.5);--surface-2:rgba(255,255,255,.78);--line:rgba(60,30,120,.14);--line-2:rgba(60,30,120,.3);--field:#7a6fa3;--text:#1b1335;--muted:#4a4168;--faint:#5d547c;--dim:#d5cdee;
+  --accent:#6a35e8;--accent-2:#7a35e0;--accent-3:#5140e6;--accent-ink:#fff;--accent-soft:rgba(106,53,232,.09);--glow:rgba(106,53,232,.12);
+  --p1:rgba(180,130,255,.38);--p2:rgba(150,120,255,.4);--p3:rgba(120,150,255,.36);--p4:rgba(210,195,255,.3);
+  --glass-fill:linear-gradient(145deg,rgba(255,255,255,.82),rgba(255,255,255,.42) 40%,rgba(255,255,255,.62));
+  --glass-edge:rgba(255,255,255,.7);--glass-hi:#fff;--glass-hi-soft:rgba(255,255,255,.8);
+  --glass-shadow:inset 0 1px 0 #fff,inset 0 0 40px rgba(255,255,255,.3),0 30px 70px -36px rgba(70,30,150,.35),0 0 70px -36px var(--accent-2)}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#f2edfc;--bg-2:rgba(255,255,255,.42);--surface:rgba(255,255,255,.5);--surface-2:rgba(255,255,255,.78);--line:rgba(60,30,120,.14);--line-2:rgba(60,30,120,.3);--field:#7a6fa3;--text:#1b1335;--muted:#4a4168;--faint:#5d547c;--dim:#d5cdee;
+  --accent:#6a35e8;--accent-2:#7a35e0;--accent-3:#5140e6;--accent-ink:#fff;--accent-soft:rgba(106,53,232,.09);--glow:rgba(106,53,232,.12);
+  --p1:rgba(180,130,255,.38);--p2:rgba(150,120,255,.4);--p3:rgba(120,150,255,.36);--p4:rgba(210,195,255,.3);
+  --glass-fill:linear-gradient(145deg,rgba(255,255,255,.82),rgba(255,255,255,.42) 40%,rgba(255,255,255,.62));
+  --glass-edge:rgba(255,255,255,.7);--glass-hi:#fff;--glass-hi-soft:rgba(255,255,255,.8);
+  --glass-shadow:inset 0 1px 0 #fff,inset 0 0 40px rgba(255,255,255,.3),0 30px 70px -36px rgba(70,30,150,.35),0 0 70px -36px var(--accent-2)}}
+
+/* 플라즈마 장: 화면 뒤에 고정된 빛 덩어리 네 개가 아주 느리게 흐른다 (유리가 굴절시킬 배경) */
+body::before{content:"";position:fixed;inset:-30vmax;z-index:-1;pointer-events:none;
+  background:radial-gradient(34vmax 30vmax at 30% 32%,var(--p1),transparent 70%),radial-gradient(38vmax 34vmax at 70% 38%,var(--p2),transparent 70%),radial-gradient(30vmax 30vmax at 56% 68%,var(--p3),transparent 70%),radial-gradient(14vmax 12vmax at 42% 54%,var(--p4),transparent 70%);
+  animation:plasma 36s ease-in-out infinite alternate}
+@keyframes plasma{0%{transform:translate3d(-4vmax,-3vmax,0) rotate(0deg) scale(1)}50%{transform:translate3d(5vmax,4vmax,0) rotate(14deg) scale(1.12)}100%{transform:translate3d(-2vmax,6vmax,0) rotate(-10deg) scale(1.04)}}
+html{scroll-padding-top:96px}
+
+/* 내비게이션: 화면 위에 떠 있는 유리 캡슐 */
+header.nav{top:12px;margin-top:12px;padding:0 12px;background:none;border:0;-webkit-backdrop-filter:none;backdrop-filter:none;pointer-events:none}
+.nav .wrap{pointer-events:auto;height:60px;padding:0 8px 0 20px;border-radius:999px;border:1px solid var(--glass-edge);background:var(--glass-fill);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);box-shadow:var(--glass-shadow)}
+.nav nav a{min-height:40px;border-radius:999px}
+.nav nav a::after{display:none}
+.nav nav a.on{background:var(--surface-2);box-shadow:inset 0 1px 0 var(--glass-hi-soft),0 0 22px -6px var(--accent-2)}
+.icon-btn{border-radius:50%;background:var(--surface);box-shadow:inset 0 1px 0 var(--glass-hi-soft)}
+@media(max-width:480px){.nav .wrap{padding:0 6px 0 12px}}
+
+/* 유리 면: 타일 */
+.tile,.tile.lift,.tile.lift:hover,:root[data-motion="off"] .tile.lift:hover{background:var(--glass-fill);border:1px solid var(--glass-edge)}
+.tile{-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);box-shadow:var(--glass-shadow)}
+/* 안쪽 테두리: 왼쪽 위는 흰 반사광, 오른쪽 아래는 플라즈마 빛이 맺힌다 */
+.tile::before,.chat.tile::before,.empty-proj::before{content:"";display:block;position:absolute;inset:0;height:auto;z-index:1;border-radius:inherit;padding:1px;opacity:1;pointer-events:none;
+  background:linear-gradient(140deg,var(--glass-hi),transparent 28%,transparent 68%,color-mix(in srgb,var(--accent-2) 65%,transparent));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
+.tile.lift{transition:transform .15s var(--ease),box-shadow .3s var(--ease)}
+.tile.lift:hover{box-shadow:var(--glass-shadow),0 0 90px -28px var(--accent-2),0 0 44px -20px var(--accent-3)}
+.tile.lift::after{background:radial-gradient(360px circle at var(--mx,50%) var(--my,0%),rgba(255,255,255,.1),var(--glow) 35%,transparent 70%)}
+
+/* 히어로 */
+.hero .slash{display:none}
+.hero::after{background:radial-gradient(circle,color-mix(in srgb,var(--accent-2) 26%,transparent),transparent 65%)}
+.who{border-image:linear-gradient(var(--accent-2),var(--accent-3)) 1}
+h1 .w.hl{background-image:linear-gradient(90deg,var(--accent-2),var(--accent),var(--accent-3));filter:drop-shadow(0 0 28px color-mix(in srgb,var(--accent-2) 50%,transparent))}
+.pill{border-radius:999px;background:var(--surface);-webkit-backdrop-filter:blur(12px) saturate(1.6);backdrop-filter:blur(12px) saturate(1.6);box-shadow:inset 0 1px 0 var(--glass-hi-soft)}
+.dot.live{box-shadow:0 0 0 3px color-mix(in srgb,var(--live) 25%,transparent),0 0 12px var(--live)}
+
+/* 코드 카드: 유리판 + 도는 플라즈마 테두리 + 뒤로 번지는 빛 */
+.card-code{margin:0;border:0;background:var(--glass-fill);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);animation:none;box-shadow:var(--glass-shadow),0 0 120px -30px var(--accent-2),0 40px 100px -40px var(--accent-3)}
+.card-code::before{inset:0;transform:none;z-index:1;border:0;padding:1.5px;border-radius:inherit;pointer-events:none;
+  background:conic-gradient(from var(--ang),var(--accent-2),var(--accent),var(--accent-3),transparent 62%,var(--accent-2));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);animation:spin 10s linear infinite}
+.card-code .bar{background:var(--surface)}
+.caret{box-shadow:0 0 12px var(--accent-2)}
+.float-badge{border-radius:999px;border-color:var(--glass-edge);background:var(--glass-fill);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);box-shadow:var(--glass-shadow)}
+.float-badge i{box-shadow:0 0 10px currentColor;color:var(--live)}
+.fb2 i{color:var(--accent-2);background:var(--accent-2)}
+
+/* 버튼: 유리 캡슐, 주 버튼은 플라즈마가 들어찬 캡슐 */
+.btn{border-radius:999px;border-color:var(--glass-edge);background:var(--surface);-webkit-backdrop-filter:blur(14px) saturate(1.6);backdrop-filter:blur(14px) saturate(1.6);box-shadow:inset 0 1px 0 var(--glass-hi-soft)}
+.btn:not(.primary):hover{background:var(--surface-2);border-color:var(--line-2)}
+.btn.primary{border-color:transparent;background:linear-gradient(100deg,var(--accent-2),var(--accent) 50%,var(--accent-3)) border-box;color:var(--accent-ink);-webkit-backdrop-filter:none;backdrop-filter:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.5),inset 0 -10px 16px -10px rgba(0,0,0,.2),0 0 32px -6px var(--accent-2),0 12px 40px -14px var(--accent-3)}
+.btn.primary:hover{filter:brightness(1.08) saturate(1.1)}
+
+/* 작은 면: 칩·필터·태그는 캡슐, 흐림 없이 반투명 채움만 */
+.chip,.filter,.tags span,.net,.proj .top span:first-child{border-radius:999px}
+.chip,.chip.static:hover{background:var(--surface);box-shadow:inset 0 1px 0 var(--glass-hi-soft)}
+.chip:not(.static):hover{background:var(--surface-2);border-color:var(--accent);box-shadow:inset 0 1px 0 var(--glass-hi-soft),0 0 20px -6px var(--accent-2)}
+.filter{background:var(--surface)}
+.filter[aria-pressed="true"]{box-shadow:inset 0 1px 0 var(--glass-hi-soft),0 0 22px -6px var(--accent-2)}
+.tags span{background:var(--surface)}
+.tile h3.gh::before{border-radius:50%;background:linear-gradient(135deg,var(--accent-2),var(--accent-3));box-shadow:0 0 12px var(--accent-2)}
+.flow div{background:var(--surface);box-shadow:inset 0 1px 0 var(--glass-hi-soft)}
+@media(min-width:561px){.flow div:not(:last-child)::after{background:color-mix(in srgb,var(--bg) 82%,var(--accent))}}
+.proj .impact{border-image:linear-gradient(var(--accent-2),var(--accent-3)) 1;border-radius:0}
+
+/* 구분선·진행 바·마키·타임라인 */
+section:not(.hero)::before{background:linear-gradient(90deg,transparent,var(--accent-2),var(--accent-3),transparent)}
+.progress{background:linear-gradient(90deg,var(--accent-2),var(--accent),var(--accent-3));box-shadow:0 0 14px var(--accent-2)}
+.marquee span::after{color:var(--accent-2);text-shadow:0 0 14px var(--accent-2)}
+.tl article::before{background:var(--accent-2);box-shadow:0 0 0 4px var(--accent-soft),0 0 14px var(--accent-2)}
+
+/* 연락처·채팅 */
+.contact-list a,.contact-list .plain{border-color:var(--glass-edge);background:var(--glass-fill);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);box-shadow:inset 0 1px 0 var(--glass-hi-soft);transition:border-color .15s,box-shadow .2s var(--ease)}
+.contact-list a:hover{background:var(--glass-fill);border-color:var(--accent);box-shadow:inset 0 1px 0 var(--glass-hi-soft),0 0 28px -8px var(--accent-2)}
+.msg .b{border-radius:18px}
+.msg.me .b{background:linear-gradient(120deg,var(--accent-2),var(--accent));border-color:transparent;box-shadow:0 0 24px -8px var(--accent-2)}
+.compose textarea:focus-visible,.nick:focus-visible,.login input:focus-visible{outline:0;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft),0 0 24px -8px var(--accent-2)}
+
+/* 등장: 부모를 흐리거나 투명하게 만들면 그 안의 유리가 뒤 배경을 잃으므로, 유리를 담은 묶음은 자식만 나타나게 한다 */
+.rv{filter:none}
+.bento.rv,.contact.rv{opacity:1}
+.bento.rv:not(.in)>.tile{opacity:0}
+:root[data-motion="off"] .bento.rv>.tile{opacity:1}
+@media(prefers-reduced-motion:reduce){.bento.rv>.tile{opacity:1}}
+/* `*`는 가상 요소에 닿지 않으므로 배경 빛·테두리 회전을 따로 멈춘다 */
+:root[data-motion="off"] *::before,:root[data-motion="off"] *::after{animation:none!important;transition:none!important}
+@media(prefers-reduced-motion:reduce){*::before,*::after{animation:none!important;transition:none!important}}
+/* 배경 흐림을 지원하지 않는 브라우저: 글자가 묻히지 않도록 면을 거의 불투명하게 */
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  .tile,.nav .wrap,.card-code,.float-badge,.contact-list a,.contact-list .plain{background:color-mix(in srgb,var(--bg) 90%,var(--text))!important}
+}
 </style>
 </head>
 <body>
@@ -1122,7 +1238,7 @@ async function renderGithub(grid) {
       h("div", { class: "links" }, link(r.live, t("viewLive")), link(r.url, t("viewCode"))))),
     repos.length ? h("p", { class: "hint", style: "grid-column:1/-1" }, data.fallback
       ? t("snapHint", data.asOf)
-      : t("autoHint")) : null);
+      : t("autoHint")) : "");   // null을 넘기면 replaceChildren이 "null" 글자를 그대로 붙인다
 }
 
 function renderProjects() {
